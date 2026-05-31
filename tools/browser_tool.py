@@ -307,6 +307,30 @@ def _get_cdp_override() -> str:
     return ""
 
 
+def _has_cdp_url() -> bool:
+    """Check if a CDP URL is configured without resolving it (no HTTP probe).
+
+    Returns True when ``BROWSER_CDP_URL`` env var or ``browser.cdp_url`` config
+    key is set.  Unlike ``_get_cdp_override()``, this does NOT attempt to connect
+    to the endpoint — the warning-free way to check whether CDP mode is active.
+    """
+    env_override = os.environ.get("BROWSER_CDP_URL", "").strip()
+    if env_override:
+        return True
+    try:
+        from hermes_cli.config import read_raw_config
+
+        cfg = read_raw_config()
+        browser_cfg = cfg.get("browser", {})
+        if isinstance(browser_cfg, dict):
+            cdp_url = str(browser_cfg.get("cdp_url", "") or "").strip()
+            if cdp_url:
+                return True
+    except Exception:
+        pass
+    return False
+
+
 def _get_dialog_policy_config() -> Tuple[str, float]:
     """Read ``browser.dialog_policy`` + ``browser.dialog_timeout_s`` from config.
 
@@ -611,7 +635,7 @@ def _termux_browser_install_error() -> str:
 
 def _is_local_mode() -> bool:
     """Return True when the browser tool will use a local browser backend."""
-    if _get_cdp_override():
+    if _has_cdp_url():
         return False
     return _get_cloud_provider() is None
 
@@ -3662,7 +3686,7 @@ def check_browser_requirements() -> bool:
 
     # CDP override mode can connect to an existing remote/local browser endpoint
     # without requiring the local agent-browser binary on PATH.
-    if _get_cdp_override():
+    if _has_cdp_url():
         return True
 
     # The agent-browser CLI is required for local launch and cloud-provider flows.

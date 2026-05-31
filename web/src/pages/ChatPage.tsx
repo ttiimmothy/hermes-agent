@@ -67,8 +67,8 @@ function generateChannelId(): string {
 // theme, because the TUI's skin engine already paints the content; the
 // terminal chrome just needs to sit quietly inside the dashboard.
 const TERMINAL_THEME = {
-  background: "#0d2626",
-  foreground: "#f0e6d2",
+  background: "#0e0e0e",
+  foreground: "#ffffff",
   cursor: "#f0e6d2",
   cursorAccent: "#0d2626",
   selectionBackground: "#f0e6d244",
@@ -99,8 +99,8 @@ function terminalFontSizeForWidth(layoutWidthPx: number): number {
   if (layoutWidthPx < 420) return 9;
   if (layoutWidthPx < 520) return 10;
   if (layoutWidthPx < 720) return 11;
-  if (layoutWidthPx < 1024) return 12;
-  return 14;
+  // if (layoutWidthPx < 1024) return 12;
+  return 11;
 }
 
 function terminalLineHeightForWidth(layoutWidthPx: number): number {

@@ -21,7 +21,7 @@ import { PluginSlot } from "@/plugins";
 const FILES = ["agent", "errors", "gateway"] as const;
 const LEVELS = ["ALL", "DEBUG", "INFO", "WARNING", "ERROR"] as const;
 const COMPONENTS = ["all", "gateway", "agent", "tools", "cli", "cron"] as const;
-const LINE_COUNTS = [50, 100, 200, 500] as const;
+const LINE_COUNTS = [50, 100, 200, 500, 1000] as const;
 
 function classifyLine(line: string): "error" | "warning" | "info" | "debug" {
   const upper = line.toUpperCase();
@@ -59,8 +59,8 @@ export default function LogsPage() {
   const [level, setLevel] = useState<(typeof LEVELS)[number]>("ALL");
   const [component, setComponent] =
     useState<(typeof COMPONENTS)[number]>("all");
-  const [lineCount, setLineCount] = useState<(typeof LINE_COUNTS)[number]>(100);
-  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [lineCount, setLineCount] = useState<(typeof LINE_COUNTS)[number]>(1000);
+  const [autoRefresh, setAutoRefresh] = useState(true);
   const [lines, setLines] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,10 +88,10 @@ export default function LogsPage() {
   useLayoutEffect(() => {
     setAfterTitle(
       <span className="flex items-center gap-1.5">
-        <Badge tone="secondary" className="text-xs">
+        {/* <Badge tone="secondary" className="text-xs">
           {formatFilterLabel(file)} · {formatFilterLabel(level)} ·{" "}
           {formatFilterLabel(component)}
-        </Badge>
+        </Badge> */}
         <Button
           type="button"
           ghost

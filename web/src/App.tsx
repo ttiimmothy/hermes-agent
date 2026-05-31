@@ -85,7 +85,7 @@ import { api } from "@/lib/api";
 import type { StatusResponse } from "@/lib/api";
 
 function RootRedirect() {
-  return <Navigate to="/sessions" replace />;
+  return <Navigate to="/models" replace />;
 }
 
 function UnknownRouteFallback({ pluginsLoading }: { pluginsLoading: boolean }) {
@@ -93,7 +93,7 @@ function UnknownRouteFallback({ pluginsLoading }: { pluginsLoading: boolean }) {
     // Render nothing during the plugin-load window — a spinner here would just flash.
     return null;
   }
-  return <Navigate to="/sessions" replace />;
+  return <Navigate to="/models" replace />;
 }
 
 const CHAT_NAV_ITEM: NavItem = {
@@ -137,6 +137,13 @@ function ChatRouteSink() {
 
 const BUILTIN_NAV_REST: NavItem[] = [
   {
+    path: "/models",
+    labelKey: "models",
+    label: "Models",
+    icon: Cpu,
+  },
+  { path: "/skills", labelKey: "skills", label: "Skills", icon: Package },
+  {
     path: "/sessions",
     labelKey: "sessions",
     label: "Sessions",
@@ -148,15 +155,8 @@ const BUILTIN_NAV_REST: NavItem[] = [
     label: "Analytics",
     icon: BarChart3,
   },
-  {
-    path: "/models",
-    labelKey: "models",
-    label: "Models",
-    icon: Cpu,
-  },
   { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText },
   { path: "/cron", labelKey: "cron", label: "Cron", icon: Clock },
-  { path: "/skills", labelKey: "skills", label: "Skills", icon: Package },
   { path: "/plugins", labelKey: "plugins", label: "Plugins", icon: Puzzle },
   { path: "/profiles", labelKey: "profiles", label: "Profiles", icon: Users },
   { path: "/config", labelKey: "config", label: "Config", icon: Settings },
@@ -396,7 +396,7 @@ export default function App() {
 
   const builtinNav = useMemo(() => {
     const base = embeddedChat
-      ? [CHAT_NAV_ITEM, ...BUILTIN_NAV_REST]
+      ? [...BUILTIN_NAV_REST, CHAT_NAV_ITEM]
       : BUILTIN_NAV_REST;
     return showTokenAnalytics
       ? base
@@ -775,7 +775,7 @@ function SidebarNavLink({
     >
       <NavLink
         to={path}
-        end={path === "/sessions"}
+        end={path === "/models"}
         onClick={closeMobile}
         aria-label={collapsed ? navLabel : undefined}
         onFocus={collapsed ? () => setHovered(true) : undefined}
@@ -863,7 +863,7 @@ function SidebarSystemActions({
   const handleClick = (action: SystemAction) => {
     if (isBusy) return;
     void runAction(action);
-    navigate("/sessions");
+    navigate("/models");
     onNavigate();
   };
 

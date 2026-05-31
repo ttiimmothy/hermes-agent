@@ -3111,6 +3111,12 @@ async def get_toolsets():
     from toolsets import resolve_toolset
 
     config = load_config()
+
+    # Respect agent.disabled_toolsets — skip these entirely so the
+    # skills page doesn't show toolsets the user has explicitly opted out of.
+    agent_cfg = config.get("agent") or {}
+    disabled_set = {str(ts) for ts in (agent_cfg.get("disabled_toolsets") or [])}
+
     enabled_toolsets = _get_platform_tools(
         config,
         "cli",
@@ -3118,6 +3124,8 @@ async def get_toolsets():
     )
     result = []
     for name, label, desc in _get_effective_configurable_toolsets():
+        if name in disabled_set:
+            continue
         try:
             tools = sorted(set(resolve_toolset(name)))
         except Exception:

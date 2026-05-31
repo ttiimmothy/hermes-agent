@@ -130,13 +130,31 @@ def _doctor_tool_availability_detail(toolset: str) -> str:
         return "(runtime-gated; loaded only for dispatcher-spawned workers)"
     return ""
 
+def _load_doctor_config() -> dict:
+    """Load user config for doctor diagnostics — returns {} on error."""
+    try:
+        from hermes_cli.config import load_config
+        return load_config()
+    except Exception:
+        return {}
+
+
+def _get_disabled_toolsets() -> set:
+    """Return the set of toolsets the user has intentionally disabled in config."""
+    cfg = _load_doctor_config()
+    disabled = cfg.get("agent", {}).get("disabled_toolsets") or []
+    return set(disabled)
+
 
 def _apply_doctor_tool_availability_overrides(available: list[str], unavailable: list[dict]) -> tuple[list[str], list[dict]]:
     """Adjust runtime-gated tool availability for doctor diagnostics."""
     updated_available = list(available)
+    disabled = _get_disabled_toolsets()
     updated_unavailable = []
     for item in unavailable:
         name = item.get("name")
+        if name and name in disabled:
+            continue  # skip intentionally disabled toolsets
         if _is_kanban_worker_env_gate(item):
             if "kanban" not in updated_available:
                 updated_available.append("kanban")
@@ -993,17 +1011,28 @@ def run_doctor(args):
 
     # xAI OAuth — separate try/except so an import failure here cannot
     # disrupt the already-printed Nous/Codex/Gemini/MiniMax rows above.
+    # Respect skip list in config.yaml: doctor.skip_checks: ["xai_oauth"]
+    _doctor_skip_checks: list = []
     try:
-        from hermes_cli.auth import get_xai_oauth_auth_status
-        xai_oauth_status = get_xai_oauth_auth_status() or {}
-        if xai_oauth_status.get("logged_in"):
-            check_ok("xAI OAuth", "(logged in)")
-        else:
-            check_warn("xAI OAuth", "(not logged in)")
-            if xai_oauth_status.get("error"):
-                check_info(xai_oauth_status["error"])
+        _cfg_path = HERMES_HOME / "config.yaml"
+        if _cfg_path.exists():
+            import yaml as _yaml
+            _doctor_cfg = (_yaml.safe_load(_cfg_path.read_text(encoding="utf-8")) or {}).get("doctor") or {}
+            _doctor_skip_checks = _doctor_cfg.get("skip_checks") or []
     except Exception:
         pass
+    if "xai_oauth" not in _doctor_skip_checks:
+        try:
+            from hermes_cli.auth import get_xai_oauth_auth_status
+            xai_oauth_status = get_xai_oauth_auth_status() or {}
+            if xai_oauth_status.get("logged_in"):
+                check_ok("xAI OAuth", "(logged in)")
+            else:
+                check_warn("xAI OAuth", "(not logged in)")
+                if xai_oauth_status.get("error"):
+                    check_info(xai_oauth_status["error"])
+        except Exception:
+            pass
 
     _section("Directory Structure")
     hermes_home = HERMES_HOME

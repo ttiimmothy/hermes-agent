@@ -393,7 +393,7 @@ function SkillTable({ skills }: { skills: AnalyticsSkillEntry[] }) {
 }
 
 export default function AnalyticsPage() {
-  const [days, setDays] = useState(30);
+  const [days, setDays] = useState(90);
   const [data, setData] = useState<AnalyticsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -1200,6 +1200,11 @@ class APIServerAdapter(BasePlatformAdapter):
             from toolsets import resolve_toolset
 
             config = load_config()
+
+            # Respect agent.disabled_toolsets — skip these entirely.
+            agent_cfg = config.get("agent") or {}
+            disabled_set = {str(ts) for ts in (agent_cfg.get("disabled_toolsets") or [])}
+
             enabled_toolsets = _get_platform_tools(
                 config,
                 "api_server",
@@ -1207,6 +1212,8 @@ class APIServerAdapter(BasePlatformAdapter):
             )
             data: List[Dict[str, Any]] = []
             for name, label, desc in _get_effective_configurable_toolsets():
+                if name in disabled_set:
+                    continue
                 try:
                     tools = sorted(set(resolve_toolset(name)))
                 except Exception:

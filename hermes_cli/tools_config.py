@@ -80,6 +80,8 @@ CONFIGURABLE_TOOLSETS = [
     ("discord_admin",   "🛡️  Discord Server Admin",    "list channels/roles, pin, assign roles"),
     ("yuanbao",          "🤖 Yuanbao",                  "group info, member queries, DM"),
     ("computer_use",     "🖱️  Computer Use (macOS)",     "background desktop control via cua-driver"),
+    ("kanban",          "🎯  Kanban dashboard",         "kanban in web"),
+    ("google_meet",     "🔌 Google Meet",               "google meet note taking"),
 ]
 
 # Toolsets that are OFF by default for new installs.
@@ -132,8 +134,8 @@ def _xai_credentials_present() -> bool:
 # server admin, Slack workspace admin, etc.).  Keeps every other platform's
 # checklist from filling up with irrelevant toggles.
 _TOOLSET_PLATFORM_RESTRICTIONS: Dict[str, Set[str]] = {
-    "discord": {"discord"},
-    "discord_admin": {"discord"},
+    # "discord": {"discord"},
+    # "discord_admin": {"discord"},
 }
 
 
@@ -1546,8 +1548,16 @@ def _prompt_toolset_checklist(
     platform: str = "cli",
     *,
     force_fresh: bool = True,
+    disabled_toolsets: Set[str] | None = None,
 ) -> Set[str]:
-    """Multi-select checklist of toolsets. Returns set of selected toolset keys."""
+    """Multi-select checklist of toolsets. Returns set of selected toolset keys.
+
+    Args:
+        disabled_toolsets: Optional set of toolset keys to hide from the
+            checklist entirely. When a toolset is in ``agent.disabled_toolsets``
+            in config.yaml, there's no point showing it — the user already
+            said they never want it on any platform.
+    """
     from hermes_cli.curses_ui import curses_checklist
     from toolsets import resolve_toolset
 
@@ -1560,6 +1570,12 @@ def _prompt_toolset_checklist(
         (k, l, d) for (k, l, d) in effective_all
         if _toolset_allowed_for_platform(k, platform)
     ]
+    # Drop globally disabled toolsets so they don't clutter the checklist.
+    if disabled_toolsets:
+        effective = [
+            entry for entry in effective
+            if entry[0] not in disabled_toolsets
+        ]
 
     labels = []
     for ts_key, ts_label, ts_desc in effective:
@@ -3086,7 +3102,10 @@ def tools_command(args=None, first_install: bool = False, config: dict = None):
 
     # Non-interactive summary mode for CLI usage
     if getattr(args, "summary", False):
-        total = len(_get_effective_configurable_toolsets())
+        _agent_cfg = config.get("agent") or {}
+        _disabled_ts_global = {str(ts) for ts in (_agent_cfg.get("disabled_toolsets") or [])}
+        all_ts = _get_effective_configurable_toolsets()
+        total = len([e for e in all_ts if e[0] not in _disabled_ts_global])
         print(color("⚕ Tool Summary", Colors.CYAN, Colors.BOLD))
         print()
         summary = _platform_toolset_summary(config, enabled_platforms)
@@ -3119,7 +3138,9 @@ def tools_command(args=None, first_install: bool = False, config: dict = None):
             checklist_preselected = current_enabled - _DEFAULT_OFF_TOOLSETS
 
             # Show checklist
-            new_enabled = _prompt_toolset_checklist(pinfo["label"], checklist_preselected, pkey)
+            agent_cfg = config.get("agent") or {}
+            disabled_ts = {str(ts) for ts in (agent_cfg.get("disabled_toolsets") or [])}
+            new_enabled = _prompt_toolset_checklist(pinfo["label"], checklist_preselected, pkey, disabled_toolsets=disabled_ts)
 
             added = new_enabled - current_enabled
             removed = current_enabled - new_enabled
@@ -3177,7 +3198,10 @@ def tools_command(args=None, first_install: bool = False, config: dict = None):
         pinfo = PLATFORMS[pkey]
         current = _get_platform_tools(config, pkey, include_default_mcp_servers=False)
         count = len(current)
-        total = len(_get_effective_configurable_toolsets())
+        _agent_cfg = config.get("agent") or {}
+        _disabled_ts = {str(ts) for ts in (_agent_cfg.get("disabled_toolsets") or [])}
+        all_ts = _get_effective_configurable_toolsets()
+        total = len([e for e in all_ts if e[0] not in _disabled_ts])
         platform_choices.append(f"Configure {pinfo['label']}  ({count}/{total} enabled)")
         platform_keys.append(pkey)
 
@@ -3223,10 +3247,13 @@ def tools_command(args=None, first_install: bool = False, config: dict = None):
             all_current = set()
             for pk in platform_keys:
                 all_current |= _get_platform_tools(config, pk, include_default_mcp_servers=False)
+            _agent_cfg = config.get("agent") or {}
+            _disabled_ts = {str(ts) for ts in (_agent_cfg.get("disabled_toolsets") or [])}
             new_enabled = _prompt_toolset_checklist(
                 "All platforms",
                 all_current,
                 force_fresh=True,
+                disabled_toolsets=_disabled_ts,
             )
             if new_enabled != all_current:
                 for pk in platform_keys:
@@ -3257,7 +3284,10 @@ def tools_command(args=None, first_install: bool = False, config: dict = None):
                 # Update choice labels
                 for ci, pk in enumerate(platform_keys):
                     new_count = len(_get_platform_tools(config, pk, include_default_mcp_servers=False))
-                    total = len(_get_effective_configurable_toolsets())
+                    _agent_cfg_global = config.get("agent") or {}
+                    _disabled_ts_global = {str(ts) for ts in (_agent_cfg_global.get("disabled_toolsets") or [])}
+                    all_ts_global = _get_effective_configurable_toolsets()
+                    total = len([e for e in all_ts_global if e[0] not in _disabled_ts_global])
                     platform_choices[ci] = f"Configure {PLATFORMS[pk]['label']}  ({new_count}/{total} enabled)"
             else:
                 print(color("  No changes", Colors.DIM))
@@ -3271,10 +3301,13 @@ def tools_command(args=None, first_install: bool = False, config: dict = None):
         current_enabled = _get_platform_tools(config, pkey, include_default_mcp_servers=False)
 
         # Show checklist
+        _agent_cfg2 = config.get("agent") or {}
+        _disabled_ts2 = {str(ts) for ts in (_agent_cfg2.get("disabled_toolsets") or [])}
         new_enabled = _prompt_toolset_checklist(
             pinfo["label"],
             current_enabled,
             force_fresh=True,
+            disabled_toolsets=_disabled_ts2,
         )
 
         if new_enabled != current_enabled:
@@ -3310,7 +3343,10 @@ def tools_command(args=None, first_install: bool = False, config: dict = None):
 
         # Update the choice label with new count
         new_count = len(_get_platform_tools(config, pkey, include_default_mcp_servers=False))
-        total = len(_get_effective_configurable_toolsets())
+        _agent_cfg_p = config.get("agent") or {}
+        _disabled_ts_p = {str(ts) for ts in (_agent_cfg_p.get("disabled_toolsets") or [])}
+        all_ts_p = _get_effective_configurable_toolsets()
+        total = len([e for e in all_ts_p if e[0] not in _disabled_ts_p])
         platform_choices[idx] = f"Configure {pinfo['label']}  ({new_count}/{total} enabled)"
 
     print()

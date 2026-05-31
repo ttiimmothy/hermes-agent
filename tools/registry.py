@@ -526,6 +526,7 @@ class ToolRegistry:
         entries, toolset_checks = self._snapshot_state()
         for entry in entries:
             ts = entry.toolset
+            # print(ts)
             if ts in seen:
                 continue
             seen.add(ts)

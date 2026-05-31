@@ -572,7 +572,7 @@
     const [data, setData] = hooks.useState(null);
     const [loading, setLoading] = hooks.useState(true);
     const [error, setError] = hooks.useState(null);
-    const [category, setCategory] = hooks.useState("All");
+    const [category, setCategory] = hooks.useState("Tool Mastery");
     const [visibility, setVisibility] = hooks.useState("all");
 
     function load() {

@@ -98,7 +98,7 @@ export default function SkillsPage() {
   const [toolsets, setToolsets] = useState<ToolsetInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [view, setView] = useState<"skills" | "toolsets">("skills");
+  const [view, setView] = useState<"skills" | "toolsets">("toolsets");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [togglingSkills, setTogglingSkills] = useState<Set<string>>(new Set());
   const { toast, showToast } = useToast();
@@ -266,21 +266,21 @@ export default function SkillsPage() {
 
               <div className="flex sm:flex-col gap-1 overflow-x-auto sm:overflow-x-visible scrollbar-none p-2">
                 <PanelItem
-                  icon={Package}
-                  label={`${t.skills.all} (${skills.length})`}
-                  active={view === "skills" && !isSearching}
-                  onClick={() => {
-                    setView("skills");
-                    setActiveCategory(null);
-                    setSearch("");
-                  }}
-                />
-                <PanelItem
                   icon={Wrench}
                   label={`${t.skills.toolsets} (${toolsets.length})`}
                   active={view === "toolsets"}
                   onClick={() => {
                     setView("toolsets");
+                    setSearch("");
+                  }}
+                />
+                <PanelItem
+                  icon={Package}
+                  label={`${t.skills.title} (${skills.length})`}
+                  active={view === "skills" && !isSearching}
+                  onClick={() => {
+                    setView("skills");
+                    setActiveCategory(null);
                     setSearch("");
                   }}
                 />
@@ -447,11 +447,11 @@ export default function SkillsPage() {
                               <p className="text-xs text-text-secondary mb-2">
                                 {ts.description}
                               </p>
-                              {ts.enabled && !ts.configured && (
+                              {/* {ts.enabled && !ts.configured && (
                                 <p className="text-xs text-amber-300 mb-2">
                                   {t.skills.setupNeeded}
                                 </p>
-                              )}
+                              )} */}
                               {ts.tools.length > 0 && (
                                 <div className="flex flex-wrap gap-1">
                                   {ts.tools.map((tool) => (

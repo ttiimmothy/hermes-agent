@@ -1,0 +1,10 @@
+{
+  "name": "my-plugin",
+  "label": "My Plugin",
+  "description": "My dashboard plugin",
+  "icon": "Star",
+  "version": "1.0.0",
+  "tab": { "path": "/session-notes", "position": "after:skills" },
+  "slots": ["sessions:top"],
+  "entry": "dist/index.js"
+}
