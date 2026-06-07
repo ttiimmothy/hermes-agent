@@ -127,6 +127,7 @@ export const ga: Translations = {
 
   sessions: {
     title: "Seisiúin",
+    overview: "Forbhreathnú",
     searchPlaceholder: "Cuardaigh ábhar teachtaireachta...",
     noSessions: "Gan seisiúin go fóill",
     noMatch: "Níl seisiún ar bith ag teacht le do chuardach",

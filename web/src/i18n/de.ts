@@ -127,6 +127,7 @@ export const de: Translations = {
 
   sessions: {
     title: "Sitzungen",
+    overview: "Übersicht",
     searchPlaceholder: "Nachrichteninhalt suchen...",
     noSessions: "Noch keine Sitzungen",
     noMatch: "Keine Sitzungen entsprechen deiner Suche",

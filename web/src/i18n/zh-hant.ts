@@ -127,6 +127,7 @@ export const zhHant: Translations = {
 
   sessions: {
     title: "工作階段",
+    overview: "總覽",
     searchPlaceholder: "搜尋訊息內容...",
     noSessions: "尚無工作階段",
     noMatch: "沒有符合的工作階段",

@@ -126,6 +126,7 @@ export const zh: Translations = {
 
   sessions: {
     title: "会话",
+    overview: "概览",
     searchPlaceholder: "搜索消息内容...",
     noSessions: "暂无会话",
     noMatch: "没有匹配的会话",

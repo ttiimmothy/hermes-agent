@@ -127,6 +127,7 @@ export const ko: Translations = {
 
   sessions: {
     title: "세션",
+    overview: "개요",
     searchPlaceholder: "메시지 내용 검색...",
     noSessions: "아직 세션이 없습니다",
     noMatch: "검색과 일치하는 세션이 없습니다",

@@ -127,6 +127,7 @@ export const ru: Translations = {
 
   sessions: {
     title: "Сессии",
+    overview: "Обзор",
     searchPlaceholder: "Поиск по содержимому сообщений...",
     noSessions: "Сессий пока нет",
     noMatch: "Нет сессий, соответствующих запросу",
