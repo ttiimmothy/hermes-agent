@@ -22,7 +22,7 @@ export function SidebarStatusStrip() {
 
   return (
     <Link
-      to="/sessions"
+      to="/skills"
       title={t.app.statusOverview}
       className={cn(
         "block text-left",

@@ -78,7 +78,7 @@ import { isDashboardEmbeddedChatEnabled } from "@/lib/dashboard-flags";
 import { api } from "@/lib/api";
 
 function RootRedirect() {
-  return <Navigate to="/sessions" replace />;
+  return <Navigate to="/skills" replace />;
 }
 
 function UnknownRouteFallback({ pluginsLoading }: { pluginsLoading: boolean }) {
@@ -86,7 +86,7 @@ function UnknownRouteFallback({ pluginsLoading }: { pluginsLoading: boolean }) {
     // Render nothing during the plugin-load window — a spinner here would just flash.
     return null;
   }
-  return <Navigate to="/sessions" replace />;
+  return <Navigate to="/skills" replace />;
 }
 
 const CHAT_NAV_ITEM: NavItem = {
@@ -129,6 +129,7 @@ function ChatRouteSink() {
 }
 
 const BUILTIN_NAV_REST: NavItem[] = [
+  { path: "/skills", labelKey: "skills", label: "Skills", icon: Package },
   {
     path: "/sessions",
     labelKey: "sessions",
@@ -149,7 +150,6 @@ const BUILTIN_NAV_REST: NavItem[] = [
   },
   { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText },
   { path: "/cron", labelKey: "cron", label: "Cron", icon: Clock },
-  { path: "/skills", labelKey: "skills", label: "Skills", icon: Package },
   { path: "/plugins", labelKey: "plugins", label: "Plugins", icon: Puzzle },
   { path: "/profiles", labelKey: "profiles", label: "Profiles", icon: Users },
   { path: "/config", labelKey: "config", label: "Config", icon: Settings },
@@ -665,7 +665,7 @@ function SidebarNavLink({ closeMobile, item, t }: SidebarNavLinkProps) {
     <li>
       <NavLink
         to={path}
-        end={path === "/sessions"}
+        end={path === "/skills"}
         onClick={closeMobile}
         className={({ isActive }) =>
           cn(
@@ -731,7 +731,7 @@ function SidebarSystemActions({ onNavigate }: { onNavigate: () => void }) {
   const handleClick = (action: SystemAction) => {
     if (isBusy) return;
     void runAction(action);
-    navigate("/sessions");
+    navigate("/skills");
     onNavigate();
   };
 
