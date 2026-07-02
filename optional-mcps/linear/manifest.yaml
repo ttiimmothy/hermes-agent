@@ -3,7 +3,7 @@
 manifest_version: 1
 
 name: linear
-description: Find, create, and update Linear issues, projects, and comments.
+description: Find, create, and update Linear issues, projects, and comments
 source: https://linear.app/docs/mcp
 
 # Linear ships a remote MCP server with native OAuth 2.1 + Dynamic Client

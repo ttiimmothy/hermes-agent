@@ -31,6 +31,7 @@ def build_tools_parser(subparsers, *, cmd_tools: Callable) -> None:
     # hermes tools list [--platform cli]
     tools_list_p = tools_sub.add_parser(
         "list",
+        aliases=["ls"],
         help="Show all tools and their enabled/disabled status",
     )
     tools_list_p.add_argument(

@@ -66,7 +66,6 @@ try:
 except ImportError:  # pragma: no cover - starlette is a required install path
     _WebSocketDisconnect = Exception  # type: ignore[assignment]
 
-
 class WSTransport:
     """Per-connection WS transport.
 
@@ -225,10 +224,10 @@ class WSTransport:
             await self._ws.send_text(line)
         except Exception as exc:
             self._closed = True
-            _log.warning(
-                "ws send failed peer=%s error_type=%s error=%s",
-                self._peer, type(exc).__name__, exc,
-            )
+            # _log.warning(
+            #     "ws send failed peer=%s error_type=%s error=%s",
+            #     self._peer, type(exc).__name__, exc,
+            # )
 
     async def _safe_send_many(self, lines: list[str]) -> None:
         """Send a batch of pre-serialized frames in order on the loop thread."""
@@ -415,12 +414,12 @@ async def handle_ws(ws: Any) -> None:
             if resp is not None and not await transport.write_async(resp):
                 disconnect_reason = "send_failed_after_response"
                 send_failures += 1
-                _log.warning(
-                    "ws response send failed peer=%s id=%s method=%s",
-                    peer,
-                    req_id,
-                    req_method,
-                )
+                # _log.warning(
+                #     "ws response send failed peer=%s id=%s method=%s",
+                #     peer,
+                #     req_id,
+                #     req_method,
+                # )
                 break
     finally:
         reaped_sessions = 0
@@ -451,16 +450,17 @@ async def handle_ws(ws: Any) -> None:
         try:
             await ws.close()
         except Exception as exc:
-            _log.debug("ws close failed peer=%s error=%s", peer, exc)
-        _log.info(
-            "ws closed peer=%s reason=%s messages=%d parse_errors=%d "
-            "dispatch_crashes=%d send_failures=%d reaped_sessions=%d detached_sessions=%d",
-            peer,
-            disconnect_reason,
-            messages,
-            parse_errors,
-            dispatch_crashes,
-            send_failures,
-            reaped_sessions,
-            detached_sessions,
-        )
+            return True
+        #     _log.debug("ws close failed peer=%s error=%s", peer, exc)
+        # _log.info(
+        #     "ws closed peer=%s reason=%s messages=%d parse_errors=%d "
+        #     "dispatch_crashes=%d send_failures=%d reaped_sessions=%d detached_sessions=%d",
+        #     peer,
+        #     disconnect_reason,
+        #     messages,
+        #     parse_errors,
+        #     dispatch_crashes,
+        #     send_failures,
+        #     reaped_sessions,
+        #     detached_sessions,
+        # )

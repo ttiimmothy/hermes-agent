@@ -21,7 +21,7 @@ import {
 import {
   Activity,
   BarChart3,
-  BookOpen,
+  // BookOpen,
   Clock,
   Code,
   Cpu,
@@ -60,11 +60,12 @@ import { Spinner } from "@nous-research/ui/ui/components/spinner";
 import { Typography } from "@nous-research/ui/ui/components/typography/index";
 import { ConfirmDialog } from "@nous-research/ui/ui/components/confirm-dialog";
 import { cn } from "@/lib/utils";
+import { Backdrop } from "@/components/Backdrop";
 import { SidebarFooter } from "@/components/SidebarFooter";
 import { SidebarStatusStrip, gatewayLine } from "@/components/SidebarStatusStrip";
 import { useBelowBreakpoint } from "@nous-research/ui/hooks/use-below-breakpoint";
 import { useSidebarStatus } from "@/hooks/useSidebarStatus";
-import { AuthWidget } from "@/components/AuthWidget";
+// import { AuthWidget } from "@/components/AuthWidget";
 import { PageHeaderProvider } from "@/contexts/PageHeaderProvider";
 import { ProfileProvider } from "@/contexts/ProfileProvider";
 import { useProfileScope } from "@/contexts/useProfileScope";
@@ -103,7 +104,7 @@ import { api } from "@/lib/api";
 import type { StatusResponse, UpdateCheckResponse } from "@/lib/api";
 
 function RootRedirect() {
-  return <Navigate to="/sessions" replace />;
+  return <Navigate to="/skills" replace />;
 }
 
 function UnknownRouteFallback({ pluginsLoading }: { pluginsLoading: boolean }) {
@@ -111,7 +112,7 @@ function UnknownRouteFallback({ pluginsLoading }: { pluginsLoading: boolean }) {
     // Render nothing during the plugin-load window — a spinner here would just flash.
     return null;
   }
-  return <Navigate to="/sessions" replace />;
+  return <Navigate to="/skills" replace />;
 }
 
 const CHAT_NAV_ITEM: NavItem = {
@@ -149,7 +150,8 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/profiles/new": ProfileBuilderPage,
   "/config": ConfigPage,
   "/env": EnvPage,
-  "/docs": DocsPage,
+  "/docs": SessionsPage,
+  "/doc": DocsPage,
 };
 
 // Route placeholder for /chat.  The persistent ChatPage host (rendered
@@ -161,43 +163,25 @@ function ChatRouteSink() {
 }
 
 const BUILTIN_NAV_REST: NavItem[] = [
-  {
-    path: "/sessions",
-    labelKey: "sessions",
-    label: "Sessions",
-    icon: MessageSquare,
-  },
-  { path: "/files", label: "Files", icon: FolderOpen },
-  {
-    path: "/analytics",
-    labelKey: "analytics",
-    label: "Analytics",
-    icon: BarChart3,
-  },
-  {
-    path: "/models",
-    labelKey: "models",
-    label: "Models",
-    icon: Cpu,
-  },
+  { path: "/skills", labelKey: "skills", label: "Skills", icon: Package },
+  { path: "/models", labelKey: "models", label: "Models", icon: Cpu},
+  { path: "/sessions", labelKey: "sessions", label: "Sessions", icon: MessageSquare},
+  // { path: "/files", label: "Files", icon: FolderOpen },
+  { path: "/analytics", labelKey: "analytics", label: "Analytics", icon: BarChart3},
   { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText },
   { path: "/cron", labelKey: "cron", label: "Cron", icon: Clock },
-  { path: "/skills", labelKey: "skills", label: "Skills", icon: Package },
-  { path: "/plugins", labelKey: "plugins", label: "Plugins", icon: Puzzle },
+  // { path: "/plugins", labelKey: "plugins", label: "Plugins", icon: Puzzle },
+  { path: "/plugins", labelKey: "plugins", label: "Plugins", icon: Webhook },
   { path: "/mcp", label: "MCP", icon: Plug },
   { path: "/channels", label: "Channels", icon: Radio },
   { path: "/webhooks", label: "Webhooks", icon: Webhook },
-  { path: "/pairing", label: "Pairing", icon: ShieldCheck },
-  { path: "/profiles", labelKey: "profiles", label: "Profiles", icon: Users },
+  // { path: "/pairing", label: "Pairing", icon: ShieldCheck },
+  // { path: "/profiles", labelKey: "profiles", label: "Profiles", icon: Users },
+  { path: "/profiles", labelKey: "profiles", label: "Profiles", icon: ShieldCheck },
   { path: "/config", labelKey: "config", label: "Config", icon: Settings },
-  { path: "/env", labelKey: "keys", label: "Keys", icon: KeyRound },
+  { path: "/env", labelKey: "env", label: "Env", icon: KeyRound },
   { path: "/system", label: "System", icon: Wrench },
-  {
-    path: "/docs",
-    labelKey: "documentation",
-    label: "Documentation",
-    icon: BookOpen,
-  },
+  // { path: "/docs", labelKey: "docs", label: "Docs", icon: BookOpen,},
 ];
 
 const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
@@ -227,7 +211,7 @@ const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
 };
 
 function resolveIcon(name: string): ComponentType<{ className?: string }> {
-  return ICON_MAP[name] ?? Puzzle;
+  return ICON_MAP[name] ?? Shield;
 }
 
 function buildNavItems(
@@ -278,6 +262,7 @@ function partitionSidebarNav(
     if (builtinPaths.has(item.path)) coreItems.push(item);
     else pluginItems.push(item);
   }
+  pluginItems.push(CHAT_NAV_ITEM)
   return { coreItems, pluginItems };
 }
 
@@ -427,13 +412,15 @@ export default function App() {
   );
 
   const builtinNav = useMemo(() => {
-    const base = embeddedChat
-      ? [CHAT_NAV_ITEM, ...BUILTIN_NAV_REST]
-      : BUILTIN_NAV_REST;
+    // const base = embeddedChat
+    //   ? [...BUILTIN_NAV_REST, CHAT_NAV_ITEM]
+    //   : BUILTIN_NAV_REST;
+    const base = BUILTIN_NAV_REST;
     return showTokenAnalytics
       ? base
       : base.filter((n) => n.path !== "/analytics");
-  }, [embeddedChat, showTokenAnalytics]);
+  // }, [embeddedChat, showTokenAnalytics]);
+  }, [showTokenAnalytics]);
 
   const sidebarNav = useMemo(
     () => partitionSidebarNav(builtinNav, manifests),
@@ -483,23 +470,23 @@ export default function App() {
     <ProfileProvider>
     <div
       data-layout-variant={layoutVariant}
-      className="flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden bg-background-base text-text-primary antialiased"
+      className="flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden bg-black text-text-primary antialiased"
     >
       <SelectionSwitcher />
-
-      <div
+      <Backdrop />
+      {/* <div
         aria-hidden
         className="pointer-events-none fixed inset-0 z-0"
-      >
-        <PluginSlot name="backdrop" />
-      </div>
+      > */}
+      <PluginSlot name="backdrop" />
+      {/* </div> */}
 
       <header
         className={cn(
           "lg:hidden fixed top-0 left-0 right-0 z-40 min-h-14",
           "flex items-center gap-2 px-4 py-2",
           "border-b border-current/20",
-          "bg-background-base",
+          "bg-background-base/90 backdrop-blur-sm",
         )}
         style={{
           background: "var(--component-header-background)",
@@ -519,7 +506,7 @@ export default function App() {
           <Menu />
         </Button>
 
-        <Typography className="font-bold text-[0.95rem] leading-[0.95] tracking-[0.05em] text-midground">
+        <Typography className="font-bold text-[0.95rem] leading-[0.95] tracking-[0.05em] text-midground" style={{ mixBlendMode: "plus-lighter" }}>
           {t.app.brand}
         </Typography>
       </header>
@@ -531,7 +518,7 @@ export default function App() {
           onClick={closeMobile}
           className={cn(
             "lg:hidden fixed inset-0 z-40 p-0 block",
-            "bg-black/70",
+            "bg-black/60 backdrop-blur-sm",
           )}
         />
       )}
@@ -545,9 +532,9 @@ export default function App() {
             id="app-sidebar"
             aria-label={t.app.navigation}
             className={cn(
-              "fixed top-0 left-0 z-50 flex h-dvh max-h-dvh w-64 min-h-0 flex-col font-sans",
+              "fixed top-0 left-0 z-50 flex h-dvh max-h-dvh w-64 min-h-0 flex-col",
               "border-r border-current/20",
-              "bg-background-base",
+              "bg-background-base/95 backdrop-blur-sm",
               "transition-[transform] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
               mobileOpen ? "translate-x-0" : "-translate-x-full",
               "lg:sticky lg:top-0 lg:translate-x-0 lg:shrink-0 lg:overflow-hidden",
@@ -575,7 +562,7 @@ export default function App() {
               >
                 <PluginSlot name="header-left" />
 
-                <Typography className="font-bold text-[1.125rem] leading-[0.95] tracking-[0.0525rem] text-midground uppercase">
+                <Typography className="font-bold text-[1.125rem] leading-[0.95] tracking-[0.0525rem] text-midground uppercase" style={{ mixBlendMode: "plus-lighter" }}>
                   Hermes
                   <br />
                   Agent
@@ -631,19 +618,19 @@ export default function App() {
               {sidebarNav.pluginItems.length > 0 && (
                 <div
                   aria-labelledby="hermes-sidebar-plugin-nav-heading"
-                  className="flex flex-col border-t border-current/10 pb-2"
+                  className="flex flex-col border-current/10 pb-2"
                   role="group"
                 >
-                  <span
+                  {/* <span
                     className={cn(
                       "px-5 pt-2.5 pb-1",
-                      "font-sans text-display text-xs tracking-[0.12em] text-text-tertiary",
+                      "font-mondwest text-display text-xs tracking-[0.12em] text-text-tertiary",
                       isDesktopCollapsed && "lg:hidden",
                     )}
                     id="hermes-sidebar-plugin-nav-heading"
                   >
                     {t.app.pluginNavSection}
-                  </span>
+                  </span> */}
 
                   <ul className="flex flex-col">
                     {sidebarNav.pluginItems.map((item) => (
@@ -710,7 +697,7 @@ export default function App() {
                 isDesktopCollapsed && "lg:hidden",
               )}
             >
-              <AuthWidget />
+              {/* <AuthWidget /> */}
               <SidebarFooter status={sidebarStatus} />
             </div>
           </aside>
@@ -835,7 +822,7 @@ function SidebarNavLink({
     >
       <NavLink
         to={path}
-        end={path === "/sessions"}
+        end={path === "/skills"}
         onClick={closeMobile}
         aria-label={collapsed ? navLabel : undefined}
         onFocus={collapsed ? showTooltip : undefined}
@@ -844,7 +831,8 @@ function SidebarNavLink({
           cn(
             "group/nav relative flex items-center gap-3",
             "px-5 py-2.5",
-            "font-sans text-display uppercase text-sm tracking-[0.12em]",
+            "font-mondwest text-display uppercase text-[0.8rem] tracking-[0.12em]",
+            // "font-mondwest text-display uppercase text-sm tracking-[0.12em]",
             "whitespace-nowrap transition-colors cursor-pointer",
             "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-midground",
             isActive
@@ -878,6 +866,7 @@ function SidebarNavLink({
               <span
                 aria-hidden
                 className="absolute left-0 top-0 bottom-0 w-px bg-midground"
+                style={{ mixBlendMode: "plus-lighter" }}
               />
             )}
           </>
@@ -974,21 +963,21 @@ function SidebarSystemActions({
       return;
     }
     void runAction(action);
-    navigate("/sessions");
+    navigate("/skills");
     onNavigate();
   };
 
   const confirmRestart = () => {
     setRestartConfirmOpen(false);
     void runAction("restart");
-    navigate("/sessions");
+    navigate("/skills");
     onNavigate();
   };
 
   const confirmUpdate = () => {
     setUpdateConfirmOpen(false);
     void runAction("update");
-    navigate("/sessions");
+    navigate("/skills");
     onNavigate();
   };
 
@@ -1004,7 +993,7 @@ function SidebarSystemActions({
       <span
         className={cn(
           "px-5 pt-0.5 pb-0.5",
-          "font-sans text-display text-xs tracking-[0.12em] text-text-tertiary",
+          "font-mondwest text-display text-xs tracking-[0.12em] text-text-tertiary",
           collapsed && "lg:hidden",
         )}
       >
@@ -1104,7 +1093,7 @@ function SystemActionButton({
         className={cn(
           "group/action relative flex w-full items-center gap-3",
           "px-5 py-2.5",
-          "font-sans text-display text-xs tracking-[0.1em]",
+          "font-mondwest text-display text-xs tracking-[0.1em]",
           "whitespace-nowrap transition-colors cursor-pointer",
           "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-midground",
           busy
@@ -1142,6 +1131,7 @@ function SystemActionButton({
           <span
             aria-hidden
             className="absolute left-0 top-0 bottom-0 w-px bg-midground"
+            style={{ mixBlendMode: "plus-lighter" }}
           />
         )}
       </button>
@@ -1277,8 +1267,8 @@ function SidebarTooltip({ anchor, label, warmRef }: SidebarTooltipProps) {
       className={cn(
         "fixed z-[100] pointer-events-none",
         "px-2 py-1",
-        "bg-background-base border border-current/20 shadow-lg",
-        "font-sans text-display text-xs tracking-[0.1em] text-midground uppercase",
+        "bg-background-base/95 border border-current/20 backdrop-blur-sm shadow-lg",
+        "font-mondwest text-display text-xs tracking-[0.1em] text-midground uppercase",
       )}
       style={{
         top: rect.top + rect.height / 2,

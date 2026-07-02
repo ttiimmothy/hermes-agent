@@ -334,7 +334,7 @@ export default function McpPage() {
       {createModalOpen && (
         <div
           ref={createModalRef}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 backdrop-blur-sm p-4"
           onClick={(e) =>
             e.target === e.currentTarget && setCreateModalOpen(false)
           }
@@ -455,7 +455,7 @@ export default function McpPage() {
       {installEntry && (
         <div
           ref={installModalRef}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 backdrop-blur-sm p-4"
           onClick={(e) =>
             e.target === e.currentTarget && setInstallEntry(null)
           }
@@ -490,7 +490,7 @@ export default function McpPage() {
 
             <div className="p-5 grid gap-4">
               <p className="text-xs text-muted-foreground">
-                This MCP requires the following values to be configured.
+                This MCP requires the following values to be configured
               </p>
               {installEntry.required_env.map((item) => (
                 <div className="grid gap-2" key={item.name}>
@@ -683,7 +683,7 @@ export default function McpPage() {
         </div>
 
         <p className="text-xs text-muted-foreground">
-          Browse Nous-approved MCP servers and install them with one click.
+          Browse Nous-approved MCP servers and install them with one click
         </p>
 
         {catalog.length === 0 && (
@@ -726,9 +726,9 @@ export default function McpPage() {
                         <Badge tone="outline">{entry.source}</Badge>
                       )
                     )}
-                    {entry.installed && (
+                    {/* {entry.installed && (
                       <Badge tone="success">Installed</Badge>
-                    )}
+                    )} */}
                     {entry.installed && !entry.enabled && (
                       <Badge tone="outline">disabled</Badge>
                     )}
@@ -742,7 +742,7 @@ export default function McpPage() {
                   {entry.transport === "http" && entry.url && (
                     <p className="mt-1 text-xs text-muted-foreground">
                       <span className="font-medium">Endpoint:</span>{" "}
-                      <code className="font-mono">{entry.url}</code>
+                      <span className="font-mono">{entry.url}</span>
                     </p>
                   )}
                   {entry.transport === "stdio" && entry.command && (

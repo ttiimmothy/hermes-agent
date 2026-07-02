@@ -147,7 +147,7 @@ function EditorBody({
         </DialogDescription>
       </DialogHeader>
 
-      <div className="grid gap-3">
+      <div className="grid gap-3 p-3">
         {!isEdit && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="grid gap-1.5">

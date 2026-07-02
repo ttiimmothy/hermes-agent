@@ -25,13 +25,14 @@ import "@xterm/xterm/css/xterm.css";
 import { Button } from "@nous-research/ui/ui/components/button";
 import { Typography } from "@nous-research/ui/ui/components/typography/index";
 import { cn } from "@/lib/utils";
-import { Copy, PanelRight, RotateCcw, X } from "lucide-react";
+// import { Copy, PanelRight, RotateCcw, X } from "lucide-react";
+import { Copy, PanelRight, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
 
 import { ChatSidebar } from "@/components/ChatSidebar";
-import { ChatSessionList } from "@/components/ChatSessionList";
+// import { ChatSessionList } from "@/components/ChatSessionList";
 import { usePageHeader } from "@/contexts/usePageHeader";
 import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
@@ -58,7 +59,7 @@ function generateChannelId(scope?: string): string {
 // with cream foreground — we intentionally don't pick monokai or a loud
 // theme, because the TUI's skin engine already paints the content; the
 // terminal chrome just needs to sit quietly inside the dashboard.
-const DEFAULT_TERMINAL_BACKGROUND = "#000000";
+const DEFAULT_TERMINAL_BACKGROUND = "#060606";
 const DEFAULT_TERMINAL_FOREGROUND = "#f0e6d2";
 
 function buildTerminalTheme(background: string, foreground: string) {
@@ -97,8 +98,8 @@ function terminalFontSizeForWidth(layoutWidthPx: number): number {
   if (layoutWidthPx < 420) return 9;
   if (layoutWidthPx < 520) return 10;
   if (layoutWidthPx < 720) return 11;
-  if (layoutWidthPx < 1024) return 12;
-  return 14;
+  // if (layoutWidthPx < 1024) return 12;
+  return 11;
 }
 
 function terminalLineHeightForWidth(layoutWidthPx: number): number {
@@ -147,17 +148,16 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
       reconnectTimerRef.current = null;
     }
   }, []);
-  const reconnect = useCallback(() => {
+  // const reconnect = useCallback(() => {
     forceFreshPtyRef.current = true;
     reconnectAttemptRef.current = 0;
     clearReconnectTimer();
-    setSessionEnded(false);
-    setBanner(null);
-    setReconnectNonce((n) => n + 1);
-  }, [clearReconnectTimer]);
+  //   setSessionEnded(false);
+  //   setBanner(null);
+  //   setReconnectNonce((n) => n + 1);
+  // }, [clearReconnectTimer]);
   const startFreshDashboardChat = useCallback(() => {
     const next = new URLSearchParams(searchParams);
-
     next.delete("resume");
     forceFreshPtyRef.current = true;
     reconnectAttemptRef.current = 0;
@@ -667,7 +667,7 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
       const delayMs = Math.min(250 * 2 ** (attempt - 1), 3000);
       setSessionEnded(false);
       setBanner(
-        `Chat connection interrupted (code ${code}). Reconnecting…`,
+        `Chat connection interrupted (code ${code}). Reconnecting`,
       );
       reconnectTimerRef.current = setTimeout(() => {
         reconnectTimerRef.current = null;
@@ -938,7 +938,7 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
             onClick={closeMobilePanel}
             className={cn(
               "fixed inset-0 z-[55] p-0 block",
-              "bg-black/60",
+              "bg-black/60 backdrop-blur-sm",
             )}
           />
         )}
@@ -950,7 +950,7 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
           className={cn(
             "font-mondwest fixed top-0 right-0 z-[60] flex h-dvh max-h-dvh w-64 min-w-0 flex-col antialiased",
             "border-l border-current/20 text-midground",
-            "bg-background-base/95",
+            "bg-background-base/95 backdrop-blur-sm",
             "transition-transform duration-200 ease-out",
             "[background:var(--component-sidebar-background)]",
             "[clip-path:var(--component-sidebar-clip-path)]",
@@ -968,6 +968,7 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
             <Typography
               mondwest
               className="text-display font-bold text-[1.125rem] leading-[0.95] tracking-[0.0525rem] text-midground"
+              style={{ mixBlendMode: "plus-lighter" }}
             >
               {t.app.modelToolsSheetTitle}
               <br />
@@ -999,12 +1000,12 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
                 onSessionTitleChange={handleSessionTitleChange}
               />
             </div>
-            <ChatSessionList
+            {/* <ChatSessionList
               activeSessionId={resumeParam}
               profile={scopedProfile}
               onPicked={closeMobilePanel}
               onNewChat={startFreshDashboardChat}
-            />
+            /> */}
           </div>
         </div>
       </>,
@@ -1042,18 +1043,19 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
               Offer an in-place restart so the user never has to refresh the
               whole page to get a working chat back. */}
           {sessionEnded && (
-            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-black/60">
-              <div className="text-sm tracking-wide text-white/80">
-                Session ended.
-              </div>
-              <Button
-                onClick={reconnect}
-                prefix={<RotateCcw className="h-4 w-4" />}
-                aria-label="Start a new chat session"
-              >
-                Start new session
-              </Button>
-            </div>
+            // <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-black/60 backdrop-blur-sm">
+            //   <div className="text-sm tracking-wide text-white/80">
+            //     Session ended.
+            //   </div>
+            //   <Button
+            //     onClick={reconnect}
+            //     prefix={<RotateCcw className="h-4 w-4" />}
+            //     aria-label="Start a new chat session"
+            //   >
+            //     Start new session
+            //   </Button>
+            // </div>
+            <></>
           )}
 
           <Button
@@ -1065,7 +1067,7 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
               "absolute z-10",
               "normal-case tracking-normal font-normal",
               "rounded border border-current/30",
-              "bg-black/20",
+              "bg-black/20 backdrop-blur-sm",
               "opacity-70 hover:opacity-100 hover:border-current/60",
               "transition-opacity duration-150",
               "bottom-2 right-2 px-2 py-1 text-xs sm:bottom-3 sm:right-3 sm:px-2.5 sm:py-1.5",
@@ -1087,7 +1089,7 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
             id="chat-side-panel"
             role="complementary"
             aria-label={modelToolsLabel}
-            className="flex min-h-0 shrink-0 flex-col gap-3 overflow-hidden lg:h-full lg:w-60"
+            className="flex min-h-0 shrink-0 flex-col gap-3 overflow-hidden lg:h-full lg:w-80"
           >
             {/* Model picker — keeps the rail thin. */}
             <div className="shrink-0">
@@ -1100,13 +1102,13 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
             </div>
 
             {/* Session switcher fills the remaining height below the model box. */}
-            <div className="min-h-0 flex-1 overflow-hidden">
+            {/* <div className="min-h-0 flex-1 overflow-hidden">
               <ChatSessionList
                 activeSessionId={resumeParam}
                 profile={scopedProfile}
                 onNewChat={startFreshDashboardChat}
               />
-            </div>
+            </div> */}
           </div>
         )}
       </div>

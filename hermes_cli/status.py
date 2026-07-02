@@ -95,7 +95,7 @@ def show_status(args):
 
     print()
     print(color("┌─────────────────────────────────────────────────────────┐", Colors.CYAN))
-    print(color("│                 ⚕ Hermes Agent Status                  │", Colors.CYAN))
+    print(color("│                 ⚕ Hermes Agent Status                   │", Colors.CYAN))
     print(color("└─────────────────────────────────────────────────────────┘", Colors.CYAN))
 
     # =========================================================================
@@ -165,12 +165,12 @@ def show_status(args):
         value = _resolve_env(env_ref)
         has_key = bool(value)
         display = redact_key(value)
-        print(f"  {name:<12}  {check_mark(has_key)} {display}")
+        print(f"  {name:<17}  {check_mark(has_key)} {display}")
 
     from hermes_cli.auth import get_anthropic_key
     anthropic_value = get_anthropic_key()
     anthropic_display = redact_key(anthropic_value)
-    print(f"  {'Anthropic':<12}  {check_mark(bool(anthropic_value))} {anthropic_display}")
+    print(f"  {'Anthropic':<17}  {check_mark(bool(anthropic_value))} {anthropic_display}")
 
     # =========================================================================
     # Auth Providers (OAuth)
@@ -224,7 +224,7 @@ def show_status(args):
     else:
         nous_label = "not logged in (run: hermes portal)"
     print(
-        f"  {'Nous Portal':<12}  {check_mark(nous_logged_in)} "
+        f"  {'Nous Portal':<13}  {check_mark(nous_logged_in)} "
         f"{nous_label}"
     )
     portal_url = nous_status.get("portal_base_url") or "(unknown)"
@@ -236,46 +236,46 @@ def show_status(args):
     key_exp = _format_iso_timestamp(nous_status.get("agent_key_expires_at"))
     refresh_label = "yes" if nous_status.get("has_refresh_token") else "no"
     if nous_logged_in or portal_url != "(unknown)" or nous_error:
-        print(f"    Portal URL: {portal_url}")
+        print(f"    Portal URL:  {portal_url}")
     if nous_inference_present and inference_url:
-        print(f"    Inference:  {inference_url}")
+        print(f"    Inference:   {inference_url}")
     if nous_logged_in or nous_status.get("access_expires_at"):
-        print(f"    Access exp: {access_exp}")
+        print(f"    Access exp:  {access_exp}")
     if nous_logged_in or nous_inference_present or nous_status.get("agent_key_expires_at"):
-        print(f"    Key exp:    {key_exp}")
+        print(f"    Key exp:     {key_exp}")
     if nous_logged_in or nous_status.get("has_refresh_token"):
-        print(f"    Refresh:    {refresh_label}")
+        print(f"    Refresh:     {refresh_label}")
     if nous_error:
-        print(f"    Error:      {nous_error}")
+        print(f"    Error:       {nous_error}")
 
     codex_logged_in = bool(codex_status.get("logged_in"))
     print(
-        f"  {'OpenAI Codex':<12}  {check_mark(codex_logged_in)} "
+        f"  {'OpenAI Codex':<13}  {check_mark(codex_logged_in)} "
         f"{'logged in' if codex_logged_in else 'not logged in (run: hermes model)'}"
     )
     codex_auth_file = codex_status.get("auth_store")
     if codex_auth_file:
-        print(f"    Auth file:  {codex_auth_file}")
+        print(f"    Auth file:   {codex_auth_file}")
     codex_last_refresh = _format_iso_timestamp(codex_status.get("last_refresh"))
     if codex_status.get("last_refresh"):
-        print(f"    Refreshed:  {codex_last_refresh}")
+        print(f"    Refreshed:   {codex_last_refresh}")
     if codex_status.get("error") and not codex_logged_in:
-        print(f"    Error:      {codex_status.get('error')}")
+        print(f"    Error:       {codex_status.get('error')}")
 
     qwen_logged_in = bool(qwen_status.get("logged_in"))
     print(
-        f"  {'Qwen OAuth':<12}  {check_mark(qwen_logged_in)} "
+        f"  {'Qwen OAuth':<13}  {check_mark(qwen_logged_in)} "
         f"{'logged in' if qwen_logged_in else 'not logged in (run: qwen auth qwen-oauth)'}"
     )
     qwen_auth_file = qwen_status.get("auth_file")
     if qwen_auth_file:
-        print(f"    Auth file:  {qwen_auth_file}")
+        print(f"    Auth file:   {qwen_auth_file}")
     qwen_exp = qwen_status.get("expires_at_ms")
     if qwen_exp:
         from datetime import datetime, timezone
-        print(f"    Access exp: {datetime.fromtimestamp(int(qwen_exp) / 1000, tz=timezone.utc).isoformat()}")
+        print(f"    Access exp:  {datetime.fromtimestamp(int(qwen_exp) / 1000, tz=timezone.utc).isoformat()}")
     if qwen_status.get("error") and not qwen_logged_in:
-        print(f"    Error:      {qwen_status.get('error')}")
+        print(f"    Error:       {qwen_status.get('error')}")
 
     minimax_logged_in = bool(minimax_status.get("logged_in"))
     print(
@@ -284,12 +284,12 @@ def show_status(args):
     )
     minimax_region = minimax_status.get("region")
     if minimax_logged_in and minimax_region:
-        print(f"    Region:     {minimax_region}")
+        print(f"    Region:      {minimax_region}")
     minimax_exp = minimax_status.get("expires_at")
     if minimax_exp:
-        print(f"    Access exp: {minimax_exp}")
+        print(f"    Access exp:  {minimax_exp}")
     if minimax_status.get("error") and not minimax_logged_in:
-        print(f"    Error:      {minimax_status.get('error')}")
+        print(f"    Error:       {minimax_status.get('error')}")
 
     # xAI OAuth — separate try/except so an import failure here cannot
     # disrupt the already-printed Nous/Codex/Qwen/MiniMax rows above.
@@ -301,16 +301,16 @@ def show_status(args):
 
     xai_oauth_logged_in = bool(xai_oauth_status.get("logged_in"))
     print(
-        f"  {'xAI OAuth':<12}  {check_mark(xai_oauth_logged_in)} "
+        f"  {'xAI OAuth':<13}  {check_mark(xai_oauth_logged_in)} "
         f"{'logged in' if xai_oauth_logged_in else 'not logged in (run: hermes auth add xai-oauth)'}"
     )
     xai_auth_file = xai_oauth_status.get("auth_store")
     if xai_auth_file:
-        print(f"    Auth file:  {xai_auth_file}")
+        print(f"    Auth file:   {xai_auth_file}")
     if xai_oauth_status.get("last_refresh"):
-        print(f"    Refreshed:  {_format_iso_timestamp(xai_oauth_status.get('last_refresh'))}")
+        print(f"    Refreshed:   {_format_iso_timestamp(xai_oauth_status.get('last_refresh'))}")
     if xai_oauth_status.get("error") and not xai_oauth_logged_in:
-        print(f"    Error:      {xai_oauth_status.get('error')}")
+        print(f"    Error:       {xai_oauth_status.get('error')}")
 
     # =========================================================================
     # Nous Subscription Features
@@ -370,7 +370,7 @@ def show_status(args):
                 break
         configured = bool(key_val)
         label = "configured" if configured else "not configured (run: hermes model)"
-        print(f"  {pname:<16} {check_mark(configured)} {label}")
+        print(f"  {pname:<17} {check_mark(configured)} {label}")
 
     # LM Studio reachability — only probe when it's the active provider so
     # users with foreign configs don't see noise. Auth rejection vs. silent
@@ -399,7 +399,7 @@ def show_status(args):
     terminal_env = os.getenv("TERMINAL_ENV", "")
     if not terminal_env:
         terminal_env = terminal_cfg.get("backend", "local")
-    print(f"  Backend:      {terminal_env}")
+    print(f"  {'Backend:':<14} {terminal_env}")
 
     if terminal_env == "ssh":
         ssh_host = os.getenv("TERMINAL_SSH_HOST", "")
@@ -414,7 +414,7 @@ def show_status(args):
         print(f"  Daytona Image: {daytona_image}")
 
     sudo_password = os.getenv("SUDO_PASSWORD", "")
-    print(f"  Sudo:         {check_mark(bool(sudo_password))} {'enabled' if sudo_password else 'disabled'}")
+    print(f"  {'Sudo:':<14} {check_mark(bool(sudo_password))} {'enabled' if sudo_password else 'disabled'}")
 
     # =========================================================================
     # Messaging Platforms
@@ -455,7 +455,7 @@ def show_status(args):
         if home_channel:
             status += f" (home: {home_channel})"
         
-        print(f"  {name:<12}  {check_mark(has_token)} {status}")
+        print(f"  {name:<14}  {check_mark(has_token)} {status}")
 
     # Plugin-registered platforms
     try:

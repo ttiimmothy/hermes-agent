@@ -1,6 +1,12 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+import { polyRef } from './utils/poly'
+import type { PolyComponent, PolyProps, PolyRef } from './utils/poly'
+
+export { polyRef }
+export type { PolyComponent, PolyProps, PolyRef }
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }

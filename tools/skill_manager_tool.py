@@ -997,7 +997,7 @@ def _patch_skill(
 
     result = {
         "success": True,
-        "message": f"Patched {'SKILL.md' if not file_path else file_path} in skill '{name}' ({match_count} replacement{'s' if match_count > 1 else ''}).",
+        "message": f"Patched {'SKILL.md' if not file_path else file_path} in skill '{name}' ({match_count} replacement{'s' if match_count > 1 else ''})",
     }
     # Include change previews for verbose notifications
     result["_change"] = {

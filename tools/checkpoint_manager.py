@@ -545,12 +545,25 @@ def _list_projects(store: Path) -> List[Dict]:
     return out
 
 
+_EXCLUDED_DIRS: frozenset = frozenset({
+    "node_modules", ".venv", "venv", "env", "__pycache__",
+    ".git", ".pytest_cache", ".mypy_cache", ".ruff_cache",
+    "dist", "build", "target", "out", ".next", ".nuxt",
+    ".cache", "coverage", ".hg", ".svn", "bower_components",
+})
+
+
 def _dir_file_count(path: str) -> int:
-    """Quick file count estimate (stops early if over _MAX_FILES)."""
+    """Quick file count estimate (stops early if over _MAX_FILES).
+
+    Skips well-known dependency and cache directories so repos with
+    node_modules, .venv, etc. do not falsely exceed the threshold.
+    """
     count = 0
     try:
-        for _ in Path(path).rglob("*"):
-            count += 1
+        for dirpath, dirnames, filenames in os.walk(path):
+            dirnames[:] = [d for d in dirnames if d not in _EXCLUDED_DIRS]
+            count += len(filenames)
             if count > _MAX_FILES:
                 return count
     except (PermissionError, OSError):

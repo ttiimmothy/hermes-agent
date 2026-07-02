@@ -16,6 +16,7 @@ def build_doctor_parser(subparsers, *, cmd_doctor: Callable) -> None:
     # =========================================================================
     doctor_parser = subparsers.add_parser(
         "doctor",
+        aliases=["doc"],
         help="Check configuration and dependencies",
         description="Diagnose issues with Hermes Agent setup",
     )

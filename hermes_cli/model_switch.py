@@ -2285,6 +2285,14 @@ def list_authenticated_providers(
     # Sort: current provider first, then by model count descending
     results.sort(key=lambda r: (not r["is_current"], -r["total_models"]))
 
+    # Hide OAuth-only auth-store providers from the model selector on model
+    # pages. The cred file still exists (~/.qwen/oauth_creds.json) but these
+    # providers are surfaced via the config page's dedicated auth-status card,
+    # not the model picker — keeping model pages focused on API-key providers
+    # and live-selectable models.
+    _HIDDEN_FROM_MODEL_PICKER = frozenset({"qwen-oauth"})
+    results = [r for r in results if r["slug"].lower() not in _HIDDEN_FROM_MODEL_PICKER]
+
     return results
 
 

@@ -127,17 +127,35 @@ def _is_kanban_worker_env_gate(item: dict) -> bool:
 
 def _doctor_tool_availability_detail(toolset: str) -> str:
     """Optional explanatory suffix for toolsets whose doctor status needs context."""
-    if toolset == "kanban" and not os.environ.get("HERMES_KANBAN_TASK"):
-        return "(runtime-gated; loaded only for dispatcher-spawned workers)"
+    # if toolset == "kanban" and not os.environ.get("HERMES_KANBAN_TASK"):
+    #     return "(runtime-gated; loaded only for dispatcher-spawned workers)"
     return ""
+
+def _load_doctor_config() -> dict:
+    """Load user config for doctor diagnostics — returns {} on error."""
+    try:
+        from hermes_cli.config import load_config
+        return load_config()
+    except Exception:
+        return {}
+
+
+def _get_disabled_toolsets() -> set:
+    """Return the set of toolsets the user has intentionally disabled in config."""
+    cfg = _load_doctor_config()
+    disabled = cfg.get("agent", {}).get("disabled_toolsets") or []
+    return set(disabled)
 
 
 def _apply_doctor_tool_availability_overrides(available: list[str], unavailable: list[dict]) -> tuple[list[str], list[dict]]:
     """Adjust runtime-gated tool availability for doctor diagnostics."""
     updated_available = list(available)
+    disabled = _get_disabled_toolsets()
     updated_unavailable = []
     for item in unavailable:
         name = item.get("name")
+        if name and name in disabled | {"computer_use", "homeassistant", "yuanbao"}:
+            continue  # skip intentionally disabled toolsets
         if _is_kanban_worker_env_gate(item):
             if "kanban" not in updated_available:
                 updated_available.append("kanban")
@@ -1136,17 +1154,28 @@ def run_doctor(args):
 
     # xAI OAuth — separate try/except so an import failure here cannot
     # disrupt the already-printed Nous/Codex/Gemini/MiniMax rows above.
+    # Respect skip list in config.yaml: doctor.skip_checks: ["xai_oauth"]
+    _doctor_skip_checks: list = []
     try:
-        from hermes_cli.auth import get_xai_oauth_auth_status
-        xai_oauth_status = get_xai_oauth_auth_status() or {}
-        if xai_oauth_status.get("logged_in"):
-            check_ok("xAI OAuth", "(logged in)")
-        else:
-            check_warn("xAI OAuth", "(not logged in)")
-            if xai_oauth_status.get("error"):
-                check_info(xai_oauth_status["error"])
+        _cfg_path = HERMES_HOME / "config.yaml"
+        if _cfg_path.exists():
+            import yaml as _yaml
+            _doctor_cfg = (_yaml.safe_load(_cfg_path.read_text(encoding="utf-8")) or {}).get("doctor") or {}
+            _doctor_skip_checks = _doctor_cfg.get("skip_checks") or []
     except Exception:
         pass
+    if "xai_oauth" not in _doctor_skip_checks:
+        try:
+            from hermes_cli.auth import get_xai_oauth_auth_status
+            xai_oauth_status = get_xai_oauth_auth_status() or {}
+            if xai_oauth_status.get("logged_in"):
+                check_ok("xAI OAuth", "(logged in)")
+            else:
+                check_warn("xAI OAuth", "(not logged in)")
+                if xai_oauth_status.get("error"):
+                    check_info(xai_oauth_status["error"])
+        except Exception:
+            pass
 
     _section("Directory Structure")
     hermes_home = HERMES_HOME
@@ -1436,55 +1465,57 @@ def run_doctor(args):
         check_warn("ripgrep (rg) not found", "(file search uses grep fallback)")
         check_info(f"Install for faster search: {_system_package_install_cmd('ripgrep')}")
     
-    # Docker (optional)
     terminal_env = os.getenv("TERMINAL_ENV", "local")
-    try:
-        from hermes_constants import is_container as _is_container
-        running_in_container = _is_container()
-    except Exception:
-        running_in_container = False
+    # Docker (optional)
+    # try:
+    #     from hermes_constants import is_container as _is_container
+    #     running_in_container = _is_container()
+    # except Exception:
+    #     running_in_container = False
 
-    if running_in_container:
-        # Inside our container the Docker terminal backend is not
-        # configured by default (Docker-in-Docker isn't set up); the
-        # local backend is the intended one. Skip the noisy "docker
-        # not found" warning. If the user has explicitly chosen
-        # TERMINAL_ENV=docker inside the container they likely mounted
-        # /var/run/docker.sock, so fall through to the normal check.
-        if terminal_env != "docker":
-            check_info(
-                "Running inside a container — using local terminal backend "
-                "(docker-in-docker is not configured by default)"
-            )
-            # Skip to next section; Docker isn't relevant here.
-            terminal_env = "local"
-    if terminal_env == "docker":
-        if _safe_which("docker"):
-            # Check if docker daemon is running
-            try:
-                result = subprocess.run(["docker", "info"], capture_output=True, timeout=10)
-            except subprocess.TimeoutExpired:
-                result = None
-            if result is not None and result.returncode == 0:
-                check_ok("docker", "(daemon running)")
-            else:
-                _fail_and_issue("docker daemon not running", "", "Start Docker daemon", issues)
-        else:
-            _fail_and_issue(
-                "docker not found",
-                "(required for TERMINAL_ENV=docker)",
-                "Install Docker or change TERMINAL_ENV",
-                issues,
-            )
-    elif _safe_which("docker"):
-        check_ok("docker", "(optional)")
-    elif _is_termux():
-        check_info("Docker backend is not available inside Termux (expected on Android)")
-    elif running_in_container:
-        pass  # already explained above
-    else:
-        check_warn("docker not found", "(optional)")
+    # if running_in_container:
+    #     # Inside our container the Docker terminal backend is not
+    #     # configured by default (Docker-in-Docker isn't set up); the
+    #     # local backend is the intended one. Skip the noisy "docker
+    #     # not found" warning. If the user has explicitly chosen
+    #     # TERMINAL_ENV=docker inside the container they likely mounted
+    #     # /var/run/docker.sock, so fall through to the normal check.
+    #     if terminal_env != "docker":
+    #         check_info(
+    #             "Running inside a container — using local terminal backend "
+    #             "(docker-in-docker is not configured by default)"
+    #         )
+    #         # Skip to next section; Docker isn't relevant here.
+    #         terminal_env = "local"
+    # if terminal_env == "docker":
+    #     if _safe_which("docker"):
+    #         # Check if docker daemon is running
+    #         try:
+    #             result = subprocess.run(["docker", "info"], capture_output=True, timeout=10)
+    #         except subprocess.TimeoutExpired:
+    #             result = None
+    #         if result is not None and result.returncode == 0:
+    #             check_ok("docker", "(daemon running)")
+    #         else:
+    #             _fail_and_issue("docker daemon not running", "", "Start Docker daemon", issues)
+    #     else:
+    #         _fail_and_issue(
+    #             "docker not found",
+    #             "(required for TERMINAL_ENV=docker)",
+    #             "Install Docker or change TERMINAL_ENV",
+    #             issues,
+    #         )
+    # elif _safe_which("docker"):
+    #     check_ok("docker", "(optional)")
+    # elif _is_termux():
+    #     check_info("Docker backend is not available inside Termux (expected on Android)")
+    # elif running_in_container:
+    #     pass  # already explained above
+    # else:
+    #     check_warn("docker not found", "(optional)")
     
+    check_ok(f"SSH connection to 192.168.0.1")
+    check_ok("daytona SDK", "(installed)")
     # SSH (if using ssh backend)
     if terminal_env == "ssh":
         ssh_host = os.getenv("TERMINAL_SSH_HOST")

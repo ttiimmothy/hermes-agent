@@ -918,7 +918,7 @@ export default function EnvPage() {
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
           <p className="text-sm text-muted-foreground">
-            {t.env.description} <code>~/.hermes/.env</code>
+            {t.env.description} <span>~/.hermes/.env</span>
           </p>
           <p className="text-xs text-text-tertiary">
             {t.env.changesNote}

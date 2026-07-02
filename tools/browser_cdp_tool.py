@@ -99,16 +99,16 @@ def _run_async(coro):
 def _resolve_cdp_endpoint() -> str:
     """Return the normalized CDP WebSocket URL, or empty string if unavailable.
 
-    Delegates to ``tools.browser_tool._get_cdp_override`` so precedence stays
+    Delegates to ``tools.browser_tool._has_cdp_url`` so precedence stays
     consistent with the rest of the browser tool surface:
 
     1. ``BROWSER_CDP_URL`` env var (live override from ``/browser connect``)
     2. ``browser.cdp_url`` in ``config.yaml``
     """
     try:
-        from tools.browser_tool import _get_cdp_override  # type: ignore[import-not-found]
+        from tools.browser_tool import _has_cdp_url  # type: ignore[import-not-found]
 
-        return (_get_cdp_override() or "").strip()
+        return (_has_cdp_url() or "").strip()
     except Exception as exc:  # pragma: no cover — defensive
         logger.debug("browser_cdp: failed to resolve CDP endpoint: %s", exc)
         return ""
@@ -644,7 +644,7 @@ def _browser_cdp_check() -> bool:
     """
     try:
         from tools.browser_tool import (  # type: ignore[import-not-found]
-            _get_cdp_override,
+            _has_cdp_url,
             check_browser_requirements,
         )
     except ImportError as exc:  # pragma: no cover — defensive
@@ -652,7 +652,7 @@ def _browser_cdp_check() -> bool:
         return False
     if not check_browser_requirements():
         return False
-    return bool(_get_cdp_override())
+    return bool(_has_cdp_url())
 
 
 registry.register(

@@ -1,0 +1,10 @@
+{
+  "name": "session-notes",
+  "label": "Session Notes",
+  "icon": "Star",
+  "version": "0.0.0",
+  "tab": { "path": "/session-notes", "position": "after:webhooks", "hidden": true },
+  "slots": ["skills:top", "sessions:top"],
+  "entry": "dist/index.js",
+  "api": "plugin_api.py"
+}

@@ -112,7 +112,7 @@ export const monoTheme: DashboardTheme = {
   label: "Mono",
   description: "Clean grayscale — minimal and focused",
   palette: {
-    background: { hex: "#0e0e0e", alpha: 1 },
+    background: { hex: "#060606", alpha: 1 },
     midground: { hex: "#eaeaea", alpha: 1 },
     foreground: { hex: "#ffffff", alpha: 0 },
     warmGlow: "rgba(255, 255, 255, 0.1)",

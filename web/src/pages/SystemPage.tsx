@@ -14,13 +14,13 @@ import {
   KeyRound,
   Link2,
   Play,
-  Plus,
+  // Plus,
   Power,
   RotateCw,
   Server,
   Share2,
   ShieldCheck,
-  Sparkles,
+  // Sparkles,
   Stethoscope,
   Terminal,
   Trash2,
@@ -50,10 +50,10 @@ import type {
   CredentialPoolProvider,
   CheckpointsResponse,
   HooksResponse,
-  HookEntry,
+  // HookEntry,
   SystemStats,
   UpdateCheckResponse,
-  CuratorStatus,
+  // CuratorStatus,
   PortalStatus,
   DebugShareResponse,
 } from "@/lib/api";
@@ -181,7 +181,7 @@ export default function SystemPage() {
     null,
   );
   const [hooks, setHooks] = useState<HooksResponse | null>(null);
-  const [curator, setCurator] = useState<CuratorStatus | null>(null);
+  // const [curator, setCurator] = useState<CuratorStatus | null>(null);
   const [portal, setPortal] = useState<PortalStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -246,14 +246,15 @@ export default function SystemPage() {
       // load without a separate effect / a forced network round-trip.
       api.checkHermesUpdate(false),
     ])
-      .then(([s, st, m, p, c, h, cur, prt, upd]) => {
+      // .then(([s, st, m, p, c, h, cur, prt, upd]) => {
+      .then(([s, st, m, p, c, h, _, prt, upd]) => {
         if (s.status === "fulfilled") setStatus(s.value);
         if (st.status === "fulfilled") setStats(st.value);
         if (m.status === "fulfilled") setMemory(m.value);
         if (p.status === "fulfilled") setPool(p.value.providers);
         if (c.status === "fulfilled") setCheckpoints(c.value);
         if (h.status === "fulfilled") setHooks(h.value);
-        if (cur.status === "fulfilled") setCurator(cur.value);
+        // if (cur.status === "fulfilled") setCurator(cur.value);
         if (prt.status === "fulfilled") setPortal(prt.value);
         if (upd.status === "fulfilled") setUpdateInfo(upd.value);
       })
@@ -285,16 +286,16 @@ export default function SystemPage() {
   };
 
   // ── Curator ────────────────────────────────────────────────────────
-  const toggleCuratorPaused = async () => {
-    if (!curator) return;
-    try {
-      await api.setCuratorPaused(!curator.paused);
-      showToast(curator.paused ? "Curator resumed" : "Curator paused", "success");
-      loadAll();
-    } catch (e) {
-      showToast(`Curator toggle failed: ${e}`, "error");
-    }
-  };
+  // const toggleCuratorPaused = async () => {
+  //   if (!curator) return;
+  //   try {
+  //     await api.setCuratorPaused(!curator.paused);
+  //     showToast(curator.paused ? "Curator resumed" : "Curator paused", "success");
+  //     loadAll();
+  //   } catch (e) {
+  //     showToast(`Curator toggle failed: ${e}`, "error");
+  //   }
+  // };
 
   // ── Memory ─────────────────────────────────────────────────────────
   // Memory provider selection lives on the /plugins page now (see the
@@ -685,7 +686,7 @@ export default function SystemPage() {
       {hookModalOpen && (
         <div
           ref={hookModalRef}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 backdrop-blur-sm p-4"
           onClick={(e) => e.target === e.currentTarget && setHookModalOpen(false)}
           role="dialog"
           aria-modal="true"
@@ -976,7 +977,7 @@ export default function SystemPage() {
       </section>
 
       {/* ── Curator ───────────────────────────────────────────────── */}
-      <section className="flex flex-col gap-3">
+      {/* <section className="flex flex-col gap-3">
         <H2 variant="sm" className="flex items-center gap-2 text-muted-foreground">
           <Sparkles className="h-4 w-4" /> Skill curator
         </H2>
@@ -1006,7 +1007,7 @@ export default function SystemPage() {
             </div>
           </CardContent>
         </Card>
-      </section>
+      </section> */}
 
       {/* ── Gateway ───────────────────────────────────────────────── */}
       <section className="flex flex-col gap-3">
@@ -1447,7 +1448,7 @@ export default function SystemPage() {
       </section>
 
       {/* ── Shell hooks ───────────────────────────────────────────── */}
-      <section className="flex flex-col gap-3">
+      {/* <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <H2 variant="sm" className="flex items-center gap-2 text-muted-foreground">
             <Terminal className="h-4 w-4" /> Shell hooks
@@ -1491,7 +1492,7 @@ export default function SystemPage() {
             </CardContent>
           </Card>
         ))}
-      </section>
+      </section> */}
     </div>
   );
 }

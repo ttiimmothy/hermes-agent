@@ -81,6 +81,7 @@ export function ThemeSwitcher({ collapsed = false, dropUp = false }: ThemeSwitch
 
           {!collapsed && (
             <Typography
+              mondwest
               className="hidden sm:inline text-display tracking-wide text-xs"
             >
               {label}
@@ -120,7 +121,7 @@ export function ThemeSwitcher({ collapsed = false, dropUp = false }: ThemeSwitch
             aria-label={sheetTitle}
             className={cn(
               "min-w-[240px] max-h-[70dvh] overflow-y-auto",
-              "border border-current/20 bg-background-base/95",
+              "border border-current/20 bg-background-base/95 backdrop-blur-sm",
               "shadow-[0_12px_32px_-8px_rgba(0,0,0,0.6)]",
               dropUp ? "fixed z-[100]" : "absolute z-50 right-0 top-full mt-1",
             )}
@@ -133,6 +134,7 @@ export function ThemeSwitcher({ collapsed = false, dropUp = false }: ThemeSwitch
           >
             <div className="border-b border-current/20 px-3 py-2">
               <Typography
+                mondwest
                 className="text-display text-xs tracking-[0.12em] text-text-tertiary"
               >
                 {sheetTitle}
@@ -190,6 +192,7 @@ function ThemeSwitcherOptions({
 
             <div className="flex min-w-0 flex-1 flex-col gap-0.5">
               <Typography
+                mondwest
                 className="truncate text-display text-xs tracking-wide"
               >
                 {th.label}
@@ -232,6 +235,7 @@ function FontSection({ fontChoices, fontId, setFont }: FontSectionProps) {
         <span className="inline-flex items-center gap-1.5">
           <Type className="h-3 w-3 text-text-tertiary" />
           <Typography
+            mondwest
             className="text-display text-xs tracking-[0.12em] text-text-tertiary"
           >
             {t.theme?.fontTitle ?? "Font"}

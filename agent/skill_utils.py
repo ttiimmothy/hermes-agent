@@ -287,21 +287,22 @@ def skill_matches_environment(frontmatter: Dict[str, Any]) -> bool:
     A skill matches when ANY of its declared environments is currently active
     (OR semantics, mirroring ``platforms``). Unknown env tags fail open.
     """
-    environments = frontmatter.get("environments")
-    if not environments:
-        return True
-    if not isinstance(environments, list):
-        environments = [environments]
-    for env in environments:
-        normalized = str(env).lower().strip()
-        if not normalized:
-            continue
-        if normalized not in _KNOWN_ENVIRONMENTS:
-            # Tag we don't understand — don't hide the skill over it.
-            return True
-        if _detect_environment(normalized):
-            return True
-    return False
+    return True
+    # environments = frontmatter.get("environments")
+    # if not environments:
+    #     return True
+    # if not isinstance(environments, list):
+    #     environments = [environments]
+    # for env in environments:
+    #     normalized = str(env).lower().strip()
+    #     if not normalized:
+    #         continue
+    #     if normalized not in _KNOWN_ENVIRONMENTS:
+    #         # Tag we don't understand — don't hide the skill over it.
+    #         return True
+    #     if _detect_environment(normalized):
+    #         return True
+    # return False
 
 
 # ── Disabled skills ───────────────────────────────────────────────────────

@@ -261,6 +261,25 @@ _stdio_transport = StdioTransport(lambda: _real_stdout, _stdout_lock)
 # must not fall through there while the session waits for resume or reap.
 _detached_ws_transport = _DropTransport()
 
+# Null transport: silently drops all writes. Used as the default fallback in
+# write_json so that events without a live transport (orphaned WS sessions,
+# background emits in the in-process dashboard gateway) don't leak raw JSON
+# to the terminal via _stdio_transport. The standalone TUI (entry.py) binds
+# _stdio_transport explicitly via the contextvar so its output still flows.
+class _NullTransport:
+    """Silently discards all writes — no output, always succeeds."""
+
+    __slots__ = ()
+
+    def write(self, obj: dict) -> bool:
+        return True
+
+    def close(self) -> None:
+        return None
+
+
+_null_transport = _NullTransport()
+
 
 class _SlashWorker:
     """Persistent HermesCLI subprocess for slash commands."""
@@ -1298,7 +1317,7 @@ def _start_agent_build(sid: str, session: dict) -> None:
             cfg_warn = _probe_config_health(_load_cfg())
             if cfg_warn:
                 info["config_warning"] = cfg_warn
-                logger.warning(cfg_warn)
+                # logger.warning(cfg_warn)
             _emit("session.info", sid, info)
             # If MCP discovery is still in flight (a server slower than the
             # bounded wait_for_mcp_discovery join in _make_agent), the agent
@@ -1307,7 +1326,7 @@ def _start_agent_build(sid: str, session: dict) -> None:
             _schedule_mcp_late_refresh(sid, agent)
         except Exception as e:
             current["agent_error"] = str(e)
-            _emit("error", sid, {"message": f"agent init failed: {e}"})
+            # _emit("error", sid, {"message": f"agent init failed: {e}"})
         finally:
             if home_token is not None:
                 reset_hermes_home_override(home_token)
@@ -12264,15 +12283,16 @@ def _(rid, params: dict) -> dict:
         )
         # picker_hints + canonical_order produce the TUI's required shape:
         # `authenticated`/`auth_type`/`key_env`/`warning` per row, in
-        # CANONICAL_PROVIDERS declaration order. include_unconfigured=True
-        # so the picker can show the full provider universe (with the
-        # setup-hint warning attached) instead of only authed rows.
+        # CANONICAL_PROVIDERS declaration order. include_unconfigured=False
+        # so the picker only shows providers that have API keys or are
+        # otherwise set up — keeping the model selector focused on usable
+        # options rather than the full provider universe.
         # Curated model lists are preserved — list_authenticated_providers
         # populates `models` from the curated catalog, not provider_model_ids
         # (which would pull non-agentic models like TTS/embeddings/etc.).
         payload = build_models_payload(
             ctx,
-            include_unconfigured=True,
+            include_unconfigured=False,
             picker_hints=True,
             canonical_order=True,
             pricing=True,

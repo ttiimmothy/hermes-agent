@@ -97,6 +97,7 @@ LAZY_DEPS: dict[str, tuple[str, ...]] = {
     # Native Anthropic SDK — needed when provider=anthropic (not via
     # OpenRouter / aggregators which use the openai SDK).
     "provider.anthropic": ("anthropic==0.87.0",),  # CVE-2026-34450, CVE-2026-34452
+    "provider.claude_code": ("anthropic==0.87.0",),
     # AWS Bedrock provider
     "provider.bedrock": ("boto3==1.42.89",),
     # Google Vertex AI provider — OAuth2 token minting for the Gemini
@@ -108,12 +109,13 @@ LAZY_DEPS: dict[str, tuple[str, ...]] = {
     # when model.auth_mode=entra_id is selected; key-based azure-foundry
     # users never pay this import.
     "provider.azure_identity": ("azure-identity==1.25.3",),
-
+    "provider.azure": ("azure-identity==1.25.3",),
     # ─── Web search backends ───────────────────────────────────────────────
     "search.exa": ("exa-py==2.10.2",),
     "search.firecrawl": ("firecrawl-py==4.17.0",),
     "search.parallel": ("parallel-web==0.4.2",),
-
+    "search.parallel_web": ("parallel-web==0.4.2",),
+    "search.parallel_search": ("parallel-web==0.4.2",),
     # ─── TTS providers ─────────────────────────────────────────────────────
     # Pinned to exact versions to match pyproject.toml's no-ranges policy
     # (see comment at top of [project.dependencies]). When bumping, update
@@ -123,10 +125,12 @@ LAZY_DEPS: dict[str, tuple[str, ...]] = {
     # quarantined the project 2026-05-12 (malicious 2.4.6, Mini Shai-Hulud);
     # 2.4.6 was removed and clean releases resumed (2.4.7, 2.4.8). Voxtral
     # STT + TTS share the same SDK.
-    "tts.mistral": ("mistralai==2.4.8",),
+    "tts.edge_tts": ("edge-tts==7.2.7",),
     "tts.edge": ("edge-tts==7.2.7",),
+    "tts.mistral": ("mistralai==2.4.8",),
     "tts.elevenlabs": ("elevenlabs==1.59.0",),
-
+    "tts.elevenlabs_tts": ("elevenlabs==1.59.0",),
+    "tts.premium_tts": ("elevenlabs==1.59.0",),
     # ─── Speech-to-text providers ──────────────────────────────────────────
     "stt.mistral": ("mistralai==2.4.8",),
     "stt.faster_whisper": (
@@ -134,10 +138,20 @@ LAZY_DEPS: dict[str, tuple[str, ...]] = {
         "sounddevice==0.5.5",
         "numpy==2.4.3",
     ),
-
+    "stt.voice": (
+        "faster-whisper==1.2.1",
+        "sounddevice==0.5.5",
+        "numpy==2.4.3",
+    ),
+    "stt.voice_stt": (
+        "faster-whisper==1.2.1",
+        "sounddevice==0.5.5",
+        "numpy==2.4.3",
+    ),
     # ─── Image generation backends ─────────────────────────────────────────
     "image.fal": ("fal-client==0.13.1",),
-
+    "image.image_generation": ("fal-client==0.13.1",),
+    "image.image_generation_client": ("fal-client==0.13.1",),
     # ─── Memory providers ──────────────────────────────────────────────────
     "memory.honcho": ("honcho-ai==2.0.1",),
     "memory.hindsight": ("hindsight-client==0.6.1",),
@@ -161,11 +175,6 @@ LAZY_DEPS: dict[str, tuple[str, ...]] = {
     "platform.discord": (
         "discord.py[voice]==2.7.1",
         "brotlicffi==1.2.0.1",
-        # discord.py pulls aiohttp transitively (>=3.7.4,<4) as its HTTP
-        # backbone. Pin the patched floor here too so the lazy Discord path
-        # can't keep an already-installed vulnerable aiohttp satisfying that
-        # range — mirrors the messaging extra and platform.slack.
-        "aiohttp==3.14.1",  # CVE-2026-34513/34518/34519/34520/34525 + 34993(RCE)/47265
     ),
     "platform.slack": (
         "slack-bolt==1.27.0",
@@ -173,7 +182,8 @@ LAZY_DEPS: dict[str, tuple[str, ...]] = {
         "aiohttp==3.14.1",  # CVE-2026-34513/34518/34519/34520/34525 + 34993(RCE)/47265
     ),
     "platform.matrix": (
-        "mautrix[encryption]==0.21.0",
+        # "mautrix[encryption]==0.21.0",
+        "matrix-nio==0.25.2",
         "aiosqlite==0.22.1",
         "asyncpg==0.31.0",
         "aiohttp-socks==0.11.0",
@@ -182,45 +192,45 @@ LAZY_DEPS: dict[str, tuple[str, ...]] = {
         # satisfies both — pin the patched floor here too, like platform.discord.
         "aiohttp==3.14.1",  # CVE-2026-34513/34518/34519/34520/34525 + 34993(RCE)/47265
     ),
-    "platform.dingtalk": (
-        "dingtalk-stream==0.24.3",
-        "alibabacloud-dingtalk==2.2.42",
-        "qrcode==7.4.2",
-    ),
-    "platform.feishu": (
-        "lark-oapi==1.5.3",
-        "qrcode==7.4.2",
-    ),
     # WeCom callback-mode adapter — parses untrusted XML POST bodies. Pulls
     # defusedxml only; aiohttp/httpx are core dependencies of every messaging
     # adapter and ship via `platform.discord` / `platform.slack` / etc.
     "platform.wecom_callback": ("defusedxml==0.7.1",),
+    "platform.dingtalk": (
+        "dingtalk-stream==0.24.3",
+        "alibabacloud-dingtalk==2.2.42",
+    ),
+    "platform.feishu": ("lark-oapi==1.5.3"),
     # Microsoft Teams adapter — microsoft-teams-apps pulls a heavy tree
     # (microsoft-teams-api/cards/common, dependency-injector, msal). Lazy-
     # installed on demand like every other messaging platform; also exposed
     # as the `teams` extra in pyproject for packagers / explicit installs.
-    "platform.teams": ("microsoft-teams-apps==2.0.13.4", "aiohttp==3.14.1"),  # aiohttp 3.14.1: CVE-2026-34993(RCE)/47265 + 34513/34518/34519/34520/34525
-
+    "platform.microsoft_teams": ("microsoft-teams-apps==2.0.13.4",),
+    "plugins.langfuse": ("langfuse==4.7.1"),
     # ─── Terminal backends ─────────────────────────────────────────────────
     "terminal.modal": ("modal==1.3.4",),
     "terminal.daytona": ("daytona==0.155.0",),
-
     # ─── Skills ────────────────────────────────────────────────────────────
-    "skill.google_workspace": (
+    "skill.google": (
         "google-api-python-client==2.194.0",
         "google-auth-oauthlib==1.3.1",
         "google-auth-httplib2==0.3.1",
     ),
     "skill.youtube": ("youtube-transcript-api==1.2.4",),
-
     # ─── Tools ─────────────────────────────────────────────────────────────
     # ACP adapter (VS Code / Zed / JetBrains integration)
     "tool.acp": ("agent-client-protocol==0.9.0",),
     # Dashboard (`hermes dashboard`)
     "tool.dashboard": (
-        "fastapi==0.133.1",
+        "fastapi>=0.104.0,<1",
+        "uvicorn[standard]>=0.24.0,<1",
+        "starlette==1.0.1",
+        "python-multipart>=0.0.9,<1",
+    ),
+    "tool.web": (
+        "fastapi>=0.104.0,<1",
         "uvicorn[standard]==0.41.0",
-        "starlette==1.0.1",  # CVE-2026-48710 (BadHost) — keep lazy-install in sync with pyproject [web]
+        "starlette==1.0.1", # CVE-2026-48710 (BadHost) — keep lazy-install in sync with pyproject [web]
         "python-multipart==0.0.27",  # FastAPI UploadFile/Form for streaming uploads (NS-501)
     ),
     # Vision image-resize recovery (Pillow). Pillow is now a CORE dependency
@@ -228,16 +238,14 @@ LAZY_DEPS: dict[str, tuple[str, ...]] = {
     # for stripped/source-build installs that somehow dropped it. The vision
     # call site uses prompt=False so it can never raise a blocking input()
     # prompt mid-session (#40490).
-    "tool.vision": ("Pillow==12.2.0",),
+    "tool.vision": ("pillow==12.2.0",),
     # Computer Use (cua-driver) — the MCP client SDK used to spawn and talk
     # to the cua-driver process over stdio. Matches the `mcp` / `computer-use`
     # extras in pyproject.toml. The one-liner installer pulls this in via
     # `[all]`; lazy-installing here covers lean / partial / broken-extra
     # installs so computer_use never dead-ends on `No module named 'mcp'`.
-    "tool.computer_use": (
-        "mcp==1.26.0",
-        "starlette==1.0.1",  # CVE-2026-48710 — keep in sync with pyproject [computer-use]
-    ),
+    "tool.computer_use": ("mcp==1.26.0", "starlette==1.0.1",),
+    "tool.cli": ("simple-term-menu==1.6.6",),
 }
 
 
@@ -245,8 +253,8 @@ LAZY_DEPS: dict[str, tuple[str, ...]] = {
 # version range. Reject anything that looks like a URL, file path, or shell
 # metacharacter.
 _SAFE_SPEC = re.compile(
-    r"^[A-Za-z0-9_][A-Za-z0-9_.\-]*"        # package name
-    r"(?:\[[A-Za-z0-9_,\-]+\])?"            # optional [extras]
+    r"^[A-Za-z0-9_][A-Za-z0-9_.\-]*"  # package name
+    r"(?:\[[A-Za-z0-9_,\-]+\])?"  # optional [extras]
     r"(?:[<>=!~]=?[A-Za-z0-9_.\-+,*<>=!~]+)?"  # optional version specifier
     r"$"
 )
@@ -436,6 +444,7 @@ def _allow_lazy_installs() -> bool:
     # (1) Config kill switch wins in every mode.
     try:
         from hermes_cli.config import load_config
+
         cfg = load_config()
     except Exception:
         cfg = None
@@ -485,7 +494,7 @@ def _specifier_from_spec(spec: str) -> str:
     m = re.match(r"^[A-Za-z0-9_][A-Za-z0-9_.\-]*(?:\[[A-Za-z0-9_,\-]+\])?", spec)
     if not m:
         return ""
-    return spec[m.end():]
+    return spec[m.end() :]
 
 
 def _is_satisfied(spec: str) -> bool:
@@ -744,14 +753,14 @@ def ensure(feature: str, *, prompt: bool = True) -> None:
     for spec in missing:
         if not _spec_is_safe(spec):
             raise FeatureUnavailable(
-                feature, missing,
-                f"refusing to install unsafe spec {spec!r}"
+                feature, missing, f"refusing to install unsafe spec {spec!r}"
             )
 
     if not _allow_lazy_installs():
         raise FeatureUnavailable(
-            feature, missing,
-            "lazy installs disabled (security.allow_lazy_installs=false)"
+            feature,
+            missing,
+            "lazy installs disabled (security.allow_lazy_installs=false)",
         )
 
     # Only show the interactive confirmation when we own a TTY and
@@ -765,6 +774,7 @@ def ensure(feature: str, *, prompt: bool = True) -> None:
     if "prompt_toolkit.application.current" in sys.modules:
         try:
             from prompt_toolkit.application.current import get_app_or_none
+
             _app = get_app_or_none()
             _pt_active = _app is not None and getattr(_app, "is_running", False)
         except Exception:
@@ -773,10 +783,14 @@ def ensure(feature: str, *, prompt: bool = True) -> None:
     if prompt and not _pt_active and sys.stdin.isatty() and sys.stdout.isatty():
         spec_list = ", ".join(missing)
         try:
-            answer = input(
-                f"\nFeature {feature!r} requires: {spec_list}\n"
-                f"Install into the active venv now? [Y/n] "
-            ).strip().lower()
+            answer = (
+                input(
+                    f"\nFeature {feature!r} requires: {spec_list}\n"
+                    f"Install into the active venv now? [Y/n] "
+                )
+                .strip()
+                .lower()
+            )
         except (EOFError, KeyboardInterrupt):
             answer = "n"
         if answer and answer not in {"y", "yes"}:
@@ -794,14 +808,14 @@ def ensure(feature: str, *, prompt: bool = True) -> None:
             # Clip to a readable size — pip can dump pages of resolution traces.
             snippet = snippet[-2000:]
         raise FeatureUnavailable(
-            feature, missing,
-            f"pip install failed: {snippet or 'no error output'}"
+            feature, missing, f"pip install failed: {snippet or 'no error output'}"
         )
 
     # Verify post-install. importlib.metadata caches per-process, so if we
     # just installed something the cache may not see it without a refresh.
     try:
         import importlib.metadata as _md
+
         if hasattr(_md, "_cache_clear"):
             _md._cache_clear()  # type: ignore[attr-defined]
     except Exception:
@@ -810,9 +824,10 @@ def ensure(feature: str, *, prompt: bool = True) -> None:
     still_missing = feature_missing(feature)
     if still_missing:
         raise FeatureUnavailable(
-            feature, still_missing,
+            feature,
+            still_missing,
             "install reported success but packages still not importable "
-            "(may require Python restart)"
+            "(may require Python restart)",
         )
 
     logger.info("Lazy install complete for feature %r", feature)

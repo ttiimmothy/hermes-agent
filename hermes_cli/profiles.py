@@ -486,18 +486,28 @@ def remove_wrapper_script(name: str) -> bool:
     return False
 
 
-def _migrate_profile_config_if_outdated(profile_dir: Path) -> None:
-    """Bring a copied profile config.yaml up to the current schema.
+def _migrate_profile_config_if_outdated(
+    profile_dir: Path,
+    quiet: bool = True,
+) -> bool:
+    """Bring a profile's config.yaml up to the current schema.
 
     Profile creation can clone a config file that predates schema tracking (no
     ``_config_version``) or that is simply older than the running Hermes. If we
     leave it untouched, the first desktop/doctor view of the new profile shows a
     scary ``v0 → latest`` warning even though we just created the profile. Scope
     the normal migration pipeline to the new profile and keep it non-interactive.
+
+    Args:
+        profile_dir: Path to the profile's HERMES_HOME directory.
+        quiet: If True, suppress migration output.
+
+    Returns:
+        True if migration was performed, False otherwise.
     """
     config_path = profile_dir / "config.yaml"
     if not config_path.exists():
-        return
+        return False
 
     try:
         from hermes_constants import reset_hermes_home_override, set_hermes_home_override
@@ -507,14 +517,53 @@ def _migrate_profile_config_if_outdated(profile_dir: Path) -> None:
         try:
             current_ver, latest_ver = check_config_version()
             if current_ver < latest_ver:
-                migrate_config(interactive=False, quiet=True)
+                migrate_config(interactive=False, quiet=quiet)
+                return True
+            return False
         finally:
             reset_hermes_home_override(token)
     except Exception:
         # Profile creation should not fail because an old copied config could
         # not be migrated. The next `hermes doctor --fix` can still surface the
         # detailed error in the target profile.
-        pass
+        return False
+
+
+def migrate_all_profiles_configs(quiet: bool = True) -> list[str]:
+    """Run config migration on every profile that is out of date.
+
+    Each profile is a fully independent HERMES_HOME with its own config.yaml.
+    When the config schema changes (e.g. after ``hermes update``), only the
+    currently-active profile gets migrated. This function finds every profile
+    — default + named — whose ``_config_version`` is behind the latest and
+    runs ``migrate_config(interactive=False, quiet=True)`` on it.
+
+    Args:
+        quiet: If True, suppress per-profile migration output.
+
+    Returns:
+        List of profile names that were migrated (empty = all up to date).
+    """
+    migrated: list[str] = []
+
+    # Default profile
+    default_home = _get_default_hermes_home()
+    if _migrate_profile_config_if_outdated(default_home, quiet=quiet):
+        migrated.append("default")
+
+    # Named profiles
+    profiles_root = _get_profiles_root()
+    if profiles_root.is_dir():
+        for entry in sorted(profiles_root.iterdir()):
+            if not entry.is_dir():
+                continue
+            name = entry.name
+            if not _PROFILE_ID_RE.match(name):
+                continue
+            if _migrate_profile_config_if_outdated(entry, quiet=quiet):
+                migrated.append(name)
+
+    return migrated
 
 
 def find_alias_for_profile(profile_name: str) -> Optional[str]:
@@ -1270,7 +1319,7 @@ def delete_profile(name: str, yes: bool = False) -> Path:
 
     if canon == "default":
         raise ValueError(
-            "Cannot delete the default profile (~/.hermes).\n"
+            "Cannot delete the default profile (~/.hermes)\n"
             "To remove everything, use: hermes uninstall"
         )
 
@@ -1284,20 +1333,18 @@ def delete_profile(name: str, yes: bool = False) -> Path:
     skill_count = _count_skills(profile_dir)
     dist_name, dist_version, dist_source = _read_distribution_meta(profile_dir)
 
-    print(f"\nProfile: {canon}")
-    print(f"Path:    {profile_dir}")
-    if model:
-        print(f"Model:   {model}" + (f" ({provider})" if provider else ""))
-    if skill_count:
-        print(f"Skills:  {skill_count}")
-    if dist_name:
-        print(f"Distribution: {dist_name}@{dist_version or '?'}")
-        if dist_source:
-            print(f"Installed from: {dist_source}")
+    # print(f"\nProfile: {canon}")
+    # print(f"Path:    {profile_dir}")
+    # if model:
+    #     print(f"Model:   {model}" + (f" ({provider})" if provider else ""))
+    # if skill_count:
+    #     print(f"Skills:  {skill_count}")
+    # if dist_name:
+    #     print(f"Distribution: {dist_name}@{dist_version or '?'}")
+    #     if dist_source:
+    #         print(f"Installed from: {dist_source}")
 
-    items = [
-        "All config, API keys, memories, sessions, skills, cron jobs",
-    ]
+    items = ["All config, API keys, memories, sessions, skills, cron jobs",]
 
     # Check for service
     wrapper_path = _get_wrapper_dir() / canon
@@ -1305,9 +1352,9 @@ def delete_profile(name: str, yes: bool = False) -> Path:
     if has_wrapper:
         items.append(f"Command alias ({wrapper_path})")
 
-    print(f"\nThis will permanently delete:")
-    for item in items:
-        print(f"  • {item}")
+    # print(f"\nThis will permanently delete:")
+    # for item in items:
+    #     print(f"  • {item}")
     if gw_running:
         print(f"  ⚠ Gateway is running — it will be stopped.")
 
@@ -1317,10 +1364,10 @@ def delete_profile(name: str, yes: bool = False) -> Path:
         try:
             confirm = input(f"Type '{canon}' to confirm: ").strip()
         except (KeyboardInterrupt, EOFError):
-            print("\nCancelled.")
+            print("\nCancelled")
             return profile_dir
         if confirm != canon:
-            print("Cancelled.")
+            print("Cancelled")
             return profile_dir
 
     # 1. Disable service (prevents auto-restart)
@@ -1384,7 +1431,7 @@ def delete_profile(name: str, yes: bool = False) -> Path:
             shutil.rmtree(profile_dir, onexc=_make_writable)
         except TypeError:
             shutil.rmtree(profile_dir, onerror=_make_writable)
-        print(f"✓ Removed {profile_dir}")
+        # print(f"✓ Removed {profile_dir}")
     except Exception as e:
         print(f"⚠ Could not remove {profile_dir}: {e}")
         remove_error = e
@@ -1401,7 +1448,7 @@ def delete_profile(name: str, yes: bool = False) -> Path:
     if remove_error is not None:
         raise RuntimeError(f"Could not remove profile directory {profile_dir}: {remove_error}") from remove_error
 
-    print(f"\nProfile '{canon}' deleted.")
+    # print(f"\nProfile '{canon}' deleted")
     return profile_dir
 
 

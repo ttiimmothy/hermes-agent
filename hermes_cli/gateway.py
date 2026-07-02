@@ -4260,7 +4260,7 @@ def launchd_restart():
             # Mirrors the systemd branch's "draining (up to Ns)..." line.
             print(
                 f"→ Stopping gateway (PID {pid}) — draining in-flight runs "
-                f"(up to {drain_timeout:.0f}s)..."
+                f"(up to {drain_timeout:.0f}s)"
             )
             try:
                 terminate_pid(pid, force=False)

@@ -1,0 +1,11 @@
+{
+  "name": "my-dashboard",
+  "label": "My dashboard",
+  "description": "Dashboard plugin — used by test suite for auth coverage",
+  "icon": "Sparkles",
+  "version": "0.0.0",
+  "tab": { "path": "/my-dashboard", "position": "after:pairing", "hidden": true },
+  "slots": [],
+  "entry": "dist/index.js",
+  "api": "plugin_api.py"
+}

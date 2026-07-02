@@ -246,8 +246,8 @@ def format_nous_portal_entitlement_message(
 
     if reason == "no_usable_credits" or account_info.paid_service_access is False:
         message = _no_paid_access_message(account_info, capability, billing_url)
-        if include_refresh_hint and not account_info.fresh:
-            message += " If you recently bought credits, run `hermes model` to refresh Hermes."
+        # if include_refresh_hint and not account_info.fresh:
+        #     message += " If you recently bought credits, run `hermes model` to refresh Hermes."
         return message
 
     return (
@@ -290,11 +290,11 @@ def _no_paid_access_message(
         )
 
     credit_detail = _credit_detail(total_usable, subscription_credits, purchased_credits)
-    return (
-        f"Your Nous Portal account has no usable paid credits{credit_detail}, so "
-        f"{capability} is unavailable. Add credits or update billing at {billing_url}."
-    )
-
+    # return (
+    #     f"Your Nous Portal account has no usable paid credits{credit_detail}, so "
+    #     f"{capability} is unavailable. Add credits or update billing at {billing_url}."
+    # )
+    return ("Your Nous Portal account has no usable paid credits")
 
 def _credit_detail(
     total_usable: Optional[float],

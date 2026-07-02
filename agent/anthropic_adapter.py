@@ -931,7 +931,7 @@ def _read_claude_code_credentials_from_file() -> Optional[Dict[str, Any]]:
 
     Returns dict with {accessToken, refreshToken?, expiresAt?, source} or None.
     """
-    cred_path = Path.home() / ".claude" / ".credentials.json"
+    cred_path = Path.home() / ".hermes" / ".claude" / ".credentials.json"
     if not cred_path.exists():
         return None
     try:
@@ -1140,7 +1140,7 @@ def _write_claude_code_credentials(
     as valid.  Claude Code >=2.1.81 gates on the presence of ``"user:inference"``
     in the stored scopes before it will use the token.
     """
-    cred_path = Path.home() / ".claude" / ".credentials.json"
+    cred_path = Path.home() / ".hermes" / ".claude" / ".credentials.json"
     try:
         # Read existing file to preserve other fields
         existing = {}
@@ -1275,18 +1275,30 @@ def resolve_anthropic_token() -> Optional[str]:
     """Resolve an Anthropic token from all available sources.
 
     Priority:
-      1. ANTHROPIC_TOKEN env var (OAuth/setup token saved by Hermes)
-      2. CLAUDE_CODE_OAUTH_TOKEN env var
-      3. Claude Code credentials (~/.claude.json or ~/.claude/.credentials.json)
+      1. ANTHROPIC_API_KEY env var (regular API key, or legacy fallback)
+      2. Anthropic credential_pool OAuth entry (~/.hermes/auth.json)
+      3. ANTHROPIC_TOKEN env var (OAuth/setup token saved by Hermes)
+      4. CLAUDE_CODE_OAUTH_TOKEN env var
+      5. Claude Code credentials (~/.claude.json or ~/.hermes/.claude/.credentials.json)
          — with automatic refresh if expired and a refresh token is available
-      4. Anthropic credential_pool OAuth entry (~/.hermes/auth.json)
-      5. ANTHROPIC_API_KEY env var (regular API key, or legacy fallback)
+      
 
     Returns the token string or None.
     """
     creds = read_claude_code_credentials()
 
-    # 1. Hermes-managed OAuth/setup token env var
+    # 1. Regular API key, or a legacy OAuth token saved in ANTHROPIC_API_KEY.
+    # This remains as a compatibility fallback for pre-migration Hermes configs.
+    api_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
+    if api_key:
+        return api_key
+
+    # 2. Hermes credential_pool OAuth entry.
+    resolved_pool_token = _resolve_anthropic_pool_token()
+    if resolved_pool_token:
+        return resolved_pool_token
+
+    # 3. Hermes-managed OAuth/setup token env var
     token = os.getenv("ANTHROPIC_TOKEN", "").strip()
     if token:
         preferred = _prefer_refreshable_claude_code_token(token, creds)
@@ -1294,7 +1306,7 @@ def resolve_anthropic_token() -> Optional[str]:
             return preferred
         return token
 
-    # 2. CLAUDE_CODE_OAUTH_TOKEN (used by Claude Code for setup-tokens)
+    # 4. CLAUDE_CODE_OAUTH_TOKEN (used by Claude Code for setup-tokens)
     cc_token = os.getenv("CLAUDE_CODE_OAUTH_TOKEN", "").strip()
     if cc_token:
         preferred = _prefer_refreshable_claude_code_token(cc_token, creds)
@@ -1302,21 +1314,10 @@ def resolve_anthropic_token() -> Optional[str]:
             return preferred
         return cc_token
 
-    # 3. Claude Code credential file
+    # 5. Claude Code credential file
     resolved_claude_token = _resolve_claude_code_token_from_credentials(creds)
     if resolved_claude_token:
         return resolved_claude_token
-
-    # 4. Hermes credential_pool OAuth entry.
-    resolved_pool_token = _resolve_anthropic_pool_token()
-    if resolved_pool_token:
-        return resolved_pool_token
-
-    # 5. Regular API key, or a legacy OAuth token saved in ANTHROPIC_API_KEY.
-    # This remains as a compatibility fallback for pre-migration Hermes configs.
-    api_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
-    if api_key:
-        return api_key
 
     return None
 

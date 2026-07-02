@@ -59,6 +59,8 @@ _HERMES_CORE_TOOLS = [
     # off every CLI/messaging/cron schema (narrow waist).
     # Session history search
     "session_search",
+    # Context engine
+    "contextengine"
     # Clarifying questions
     "clarify",
     # Code execution + delegation
@@ -214,7 +216,7 @@ TOOLSETS = {
 
     "context_engine": {
         "description": "Runtime tools exposed by the active context engine",
-        "tools": [],
+        "tools": ["contextengine"],
         "includes": []
     },
     

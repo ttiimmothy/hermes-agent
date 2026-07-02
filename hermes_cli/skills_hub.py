@@ -1698,7 +1698,7 @@ def skills_command(args) -> None:
                    name_override=getattr(args, "name", "") or "")
     elif action == "inspect":
         do_inspect(args.identifier)
-    elif action == "list":
+    elif action == "list" or action == "ls":
         do_list(
             source_filter=args.source,
             enabled_only=getattr(args, "enabled_only", False),

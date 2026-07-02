@@ -26,7 +26,7 @@ import {
   AlertTriangle,
   Sparkles,
   Loader2,
-  Pencil,
+  // Pencil,
   Plus,
 } from "lucide-react";
 import { api } from "@/lib/api";
@@ -40,13 +40,14 @@ import type {
   SkillHubScan,
 } from "@/lib/api";
 import { useProfileScope } from "@/contexts/useProfileScope";
-import { ToolsetConfigDrawer } from "@/components/ToolsetConfigDrawer";
+// import { ToolsetConfigDrawer } from "@/components/ToolsetConfigDrawer";
 import { SkillEditorDialog } from "@/components/SkillEditorDialog";
 import { useToast } from "@nous-research/ui/hooks/use-toast";
 import { Toast } from "@nous-research/ui/ui/components/toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@nous-research/ui/ui/components/card";
 import { Badge } from "@nous-research/ui/ui/components/badge";
-import { Button } from "@nous-research/ui/ui/components/button";
+import { Button } from "@/components/ui/Button";
+// import { Button } from "@nous-research/ui/ui/components/button";
 import { ListItem } from "@nous-research/ui/ui/components/list-item";
 import { Spinner } from "@nous-research/ui/ui/components/spinner";
 import { Switch } from "@nous-research/ui/ui/components/switch";
@@ -130,10 +131,10 @@ export default function SkillsPage() {
   const [toolsets, setToolsets] = useState<ToolsetInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [view, setView] = useState<"skills" | "toolsets" | "hub">("skills");
+  const [view, setView] = useState<"skills" | "toolsets" | "hub">("toolsets");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [togglingSkills, setTogglingSkills] = useState<Set<string>>(new Set());
-  const [configToolset, setConfigToolset] = useState<ToolsetInfo | null>(null);
+  // const [configToolset, setConfigToolset] = useState<ToolsetInfo | null>(null);
   // Skill editor dialog: open + which skill is being edited (null = create).
   const [editorOpen, setEditorOpen] = useState(false);
   const [editorSkill, setEditorSkill] = useState<string | null>(null);
@@ -199,14 +200,14 @@ export default function SkillsPage() {
   };
 
   /* ---- Refresh toolsets after a config change ---- */
-  const refreshToolsets = async () => {
-    try {
-      const tsets = await api.getToolsets();
-      setToolsets(tsets);
-    } catch {
-      /* non-fatal: the drawer already toasted on the failing write */
-    }
-  };
+  // const refreshToolsets = async () => {
+  //   try {
+  //     const tsets = await api.getToolsets();
+  //     setToolsets(tsets);
+  //   } catch {
+  //     /* non-fatal: the drawer already toasted on the failing write */
+  //   }
+  // };
 
   /* ---- Skill editor (create / edit SKILL.md) ---- */
   const openCreateEditor = useCallback(() => {
@@ -244,10 +245,10 @@ export default function SkillsPage() {
     setLearnOpen(false);
     navigate(`/chat?learn=${encodeURIComponent(composed)}`);
   }, [learnDir, learnUrl, learnText, navigate]);
-  const openEditEditor = useCallback((skillName: string) => {
-    setEditorSkill(skillName);
-    setEditorOpen(true);
-  }, []);
+  // const openEditEditor = useCallback((skillName: string) => {
+  //   setEditorSkill(skillName);
+  //   setEditorOpen(true);
+  // }, []);
   const handleEditorSaved = useCallback(
     (skillName: string) => {
       showToast(`${skillName} saved ✓`, "success");
@@ -395,21 +396,21 @@ export default function SkillsPage() {
 
               <div className="flex sm:flex-col gap-1 overflow-x-auto sm:overflow-x-visible scrollbar-none p-2">
                 <PanelItem
-                  icon={Package}
-                  label={`${t.skills.all} (${skills.length})`}
-                  active={view === "skills" && !isSearching}
-                  onClick={() => {
-                    setView("skills");
-                    setActiveCategory(null);
-                    setSearch("");
-                  }}
-                />
-                <PanelItem
                   icon={Wrench}
                   label={`${t.skills.toolsets} (${toolsets.length})`}
                   active={view === "toolsets"}
                   onClick={() => {
                     setView("toolsets");
+                    setSearch("");
+                  }}
+                />
+                <PanelItem
+                  icon={Package}
+                  label={`${t.skills.title} (${skills.length})`}
+                  active={view === "skills" && !isSearching}
+                  onClick={() => {
+                    setView("skills");
+                    setActiveCategory(null);
                     setSearch("");
                   }}
                 />
@@ -496,7 +497,7 @@ export default function SkillsPage() {
                         skill={skill}
                         toggling={togglingSkills.has(skill.name)}
                         onToggle={() => handleToggleSkill(skill)}
-                        onEdit={() => openEditEditor(skill.name)}
+                        // onEdit={() => openEditEditor(skill.name)}
                         noDescriptionLabel={t.skills.noDescription}
                       />
                     ))}
@@ -525,20 +526,20 @@ export default function SkillsPage() {
                         .replace("{s}", activeSkills.length !== 1 ? "s" : "")}
                     </Badge>
                     <Button
-                      size="sm"
-                      outlined
-                      onClick={openLearn}
-                      prefix={<Sparkles />}
-                    >
-                      Learn a skill
-                    </Button>
-                    <Button
-                      size="sm"
-                      outlined
+                      size="xs"
+                      ghost
                       onClick={openCreateEditor}
                       prefix={<Plus />}
                     >
                       New skill
+                    </Button>
+                    <Button
+                      size="xs"
+                      ghost
+                      onClick={openLearn}
+                      prefix={<Sparkles />}
+                    >
+                      Learn a skill
                     </Button>
                   </div>
                 </div>
@@ -558,7 +559,7 @@ export default function SkillsPage() {
                         skill={skill}
                         toggling={togglingSkills.has(skill.name)}
                         onToggle={() => handleToggleSkill(skill)}
-                        onEdit={() => openEditEditor(skill.name)}
+                        // onEdit={() => openEditEditor(skill.name)}
                         noDescriptionLabel={t.skills.noDescription}
                       />
                     ))}
@@ -623,24 +624,20 @@ export default function SkillsPage() {
                               )}
                               {ts.tools.length === 0 && (
                                 <span className="text-xs text-text-tertiary">
-                                  {ts.enabled
-                                    ? t.skills.toolsetLabel.replace(
-                                        "{name}",
-                                        ts.name,
-                                      )
-                                    : t.skills.disabledForCli}
+                                  {ts.enabled && t.skills.toolsetLabel.replace("{name}", ts.name,)}
                                 </span>
                               )}
-                              <div className="mt-3">
+                              {/* <div className="mt-3">
                                 <Button
                                   size="sm"
                                   outlined
                                   onClick={() => setConfigToolset(ts)}
                                   prefix={<Wrench />}
                                 >
-                                  Configure
+                                  <Wrench className="h-3 w-3 mr-1" />
+                                  <span className="font-mondwest normal-case text-xs">Configure</span>
                                 </Button>
-                              </div>
+                              </div> */}
                             </div>
                           </div>
                         </CardContent>
@@ -655,14 +652,14 @@ export default function SkillsPage() {
           )}
         </div>
       </div>
-      {configToolset && (
+      {/* {configToolset && (
         <ToolsetConfigDrawer
           toolset={configToolset}
           profile={selectedProfile || undefined}
           onClose={() => setConfigToolset(null)}
           onChanged={() => void refreshToolsets()}
         />
-      )}
+      )} */}
       <SkillEditorDialog
         open={editorOpen}
         editName={editorSkill}
@@ -680,7 +677,7 @@ export default function SkillsPage() {
               below; the agent gathers the sources and writes the skill in chat.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-3 py-2">
+          <div className="grid gap-3 py-2 p-3">
             <div className="grid gap-1.5">
               <label className="text-xs font-medium text-muted-foreground">
                 Local file or directory
@@ -714,11 +711,12 @@ export default function SkillsPage() {
               />
             </div>
           </div>
-          <div className="flex justify-end gap-2 pt-1">
-            <Button ghost onClick={() => setLearnOpen(false)}>
+          <div className="flex justify-end gap-2 pt-1 pr-3 pb-3">
+            <Button ghost onClick={() => setLearnOpen(false)} size="sm">
               Cancel
             </Button>
             <Button
+              size="sm"
               onClick={submitLearn}
               prefix={<Sparkles />}
               disabled={!learnDir.trim() && !learnUrl.trim() && !learnText.trim()}
@@ -737,7 +735,7 @@ function SkillRow({
   skill,
   toggling,
   onToggle,
-  onEdit,
+  // onEdit,
   noDescriptionLabel,
 }: SkillRowProps) {
   return (
@@ -763,7 +761,7 @@ function SkillRow({
           {skill.description || noDescriptionLabel}
         </p>
       </div>
-      <Button
+      {/* <Button
         ghost
         size="icon"
         className="shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:text-foreground"
@@ -772,7 +770,7 @@ function SkillRow({
         onClick={onEdit}
       >
         <Pencil />
-      </Button>
+      </Button> */}
     </div>
   );
 }
@@ -804,7 +802,7 @@ interface PanelItemProps {
 interface SkillRowProps {
   noDescriptionLabel: string;
   onToggle: () => void;
-  onEdit: () => void;
+  // onEdit: () => void;
   skill: SkillInfo;
   toggling: boolean;
 }
@@ -1385,7 +1383,7 @@ function SkillDetailDialog({
 
   return (
     <Dialog open onOpenChange={(o: boolean) => !o && onClose()}>
-      <DialogContent className="max-w-3xl rounded-none">
+      <DialogContent className="max-w-3xl rounded-none p-3">
         <DialogHeader>
           <DialogTitle className="flex flex-wrap items-center gap-2 text-sm">
             <Package className="h-4 w-4" />

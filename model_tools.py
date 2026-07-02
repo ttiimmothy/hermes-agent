@@ -229,6 +229,7 @@ _LEGACY_TOOLSET_MAP = {
     "web_tools": ["web_search", "web_extract"],
     "terminal_tools": ["terminal"],
     "vision_tools": ["vision_analyze"],
+    "moa_tools": ["mixture_of_agents"],
     "image_tools": ["image_generate"],
     "skills_tools": ["skills_list", "skill_view", "skill_manage"],
     "browser_tools": [
@@ -512,7 +513,7 @@ def _compute_tool_definitions(
     if not quiet_mode:
         if filtered_tools:
             tool_names = [t["function"]["name"] for t in filtered_tools]
-            print(f"🛠️  Final tool selection ({len(filtered_tools)} tools): {', '.join(tool_names)}")
+            # print(f"🛠️  Final tool selection ({len(filtered_tools)} tools): {', '.join(tool_names)}")
         else:
             print("🛠️  No tools selected (all filtered out or unavailable)")
 

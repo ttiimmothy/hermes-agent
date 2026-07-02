@@ -8,7 +8,7 @@ import type {
   ToolsetProvider,
 } from "@/lib/api";
 import { useToast } from "@nous-research/ui/hooks/use-toast";
-import { Button } from "@nous-research/ui/ui/components/button";
+import { Button } from "@/components/ui/Button";
 import { Input } from "@nous-research/ui/ui/components/input";
 import { Label } from "@nous-research/ui/ui/components/label";
 import { Badge } from "@nous-research/ui/ui/components/badge";
@@ -214,7 +214,7 @@ export function ToolsetConfigDrawer({ toolset, profile, onClose, onChanged }: Pr
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 backdrop-blur-sm p-4"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}

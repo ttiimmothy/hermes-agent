@@ -2149,7 +2149,7 @@ def _codex_access_token_is_expiring(access_token: Any, skew_seconds: int) -> boo
 
 
 def _qwen_cli_auth_path() -> Path:
-    return Path.home() / ".qwen" / "oauth_creds.json"
+    return Path.home() / ".hermes"/ ".qwen" / "oauth_creds.json"
 
 
 def _read_qwen_cli_tokens() -> Dict[str, Any]:
@@ -2351,7 +2351,7 @@ def get_qwen_auth_status() -> Dict[str, Any]:
             "auth_file": str(auth_path),
             "source": creds.get("source"),
             "api_key": creds.get("api_key"),
-            "expires_at_ms": creds.get("expires_at_ms"),
+            "expires_at": creds.get("expires_at_ms"),
         }
     except AuthError as exc:
         return {
@@ -6343,7 +6343,8 @@ def get_external_process_provider_status(provider_id: str) -> Dict[str, Any]:
     if not base_url:
         base_url = pconfig.inference_base_url
 
-    resolved_command = shutil.which(command) if command else None
+    # resolved_command = shutil.which(command) if command else None
+    resolved_command = command
     return {
         "configured": bool(resolved_command or base_url.startswith("acp+tcp://")),
         "provider": provider_id,

@@ -1061,7 +1061,7 @@ def init_agent(
         agent.valid_tool_names = {tool["function"]["name"] for tool in agent.tools}
         tool_names = sorted(agent.valid_tool_names)
         if not agent.quiet_mode:
-            print(f"🛠️  Loaded {len(agent.tools)} tools: {', '.join(tool_names)}")
+            # print(f"🛠️  Loaded {len(agent.tools)} tools: {', '.join(tool_names)}")
             # Show filtering info if applied
             if enabled_toolsets:
                 print(f"   ✅ Enabled toolsets: {', '.join(enabled_toolsets)}")
@@ -1085,8 +1085,8 @@ def init_agent(
     if agent.tools and not agent.quiet_mode:
         requirements = _ra().check_toolset_requirements()
         missing_reqs = [name for name, available in requirements.items() if not available]
-        if missing_reqs:
-            print(f"⚠️  Some tools may not work due to missing requirements: {missing_reqs}")
+        # if missing_reqs:
+        #     print(f"⚠️  Some tools may not work due to missing requirements: {missing_reqs}")
     
     # Show trajectory saving status
     if agent.save_trajectories and not agent.quiet_mode:

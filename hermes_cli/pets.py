@@ -462,7 +462,7 @@ def register_cli(parent: argparse.ArgumentParser) -> None:
     parent.set_defaults(func=lambda a: (parent.print_help(), 0)[1])
     subs = parent.add_subparsers(dest="pets_command")
 
-    p_list = subs.add_parser("list", help="Browse the petdex gallery")
+    p_list = subs.add_parser("list", aliases=["ls"], help="Browse the petdex gallery")
     p_list.add_argument("query", nargs="?", default="", help="Filter by slug/name substring")
     p_list.add_argument("--installed", action="store_true", help="Only show installed pets")
     p_list.add_argument("--limit", type=int, default=40, help="Max rows (0 = all)")
@@ -478,7 +478,7 @@ def register_cli(parent: argparse.ArgumentParser) -> None:
     p_select.add_argument("slug", nargs="?", default="", help="Pet slug (omit for picker)")
     p_select.set_defaults(func=_cmd_select)
 
-    p_show = subs.add_parser("show", help="Animate the active pet in the terminal")
+    p_show = subs.add_parser("show", aliases=["s"], help="Animate the active pet in the terminal")
     p_show.add_argument("slug", nargs="?", default="", help="Pet slug (default: active)")
     p_show.add_argument("--state", default="", help="Single state: idle/run/review/failed/wave/jump")
     p_show.add_argument("--cycle", action="store_true", help="Cycle through all states")
@@ -497,6 +497,6 @@ def register_cli(parent: argparse.ArgumentParser) -> None:
     p_remove.add_argument("slug", help="Pet slug")
     p_remove.set_defaults(func=_cmd_remove)
 
-    subs.add_parser("doctor", help="Check pet setup + terminal graphics support").set_defaults(
+    subs.add_parser("doctor", aliases=["doc"], help="Check pet setup + terminal graphics support").set_defaults(
         func=_cmd_doctor
     )

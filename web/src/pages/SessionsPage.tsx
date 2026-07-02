@@ -23,7 +23,6 @@ import {
   Hash,
   X,
   Play,
-  Eraser,
   Download,
   Pencil,
   Check,
@@ -48,7 +47,7 @@ import { ListItem } from "@nous-research/ui/ui/components/list-item";
 import { Segmented } from "@nous-research/ui/ui/components/segmented";
 import { Spinner } from "@nous-research/ui/ui/components/spinner";
 import { Badge } from "@nous-research/ui/ui/components/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@nous-research/ui/ui/components/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { useConfirmDelete } from "@nous-research/ui/hooks/use-confirm-delete";
 import { Input } from "@nous-research/ui/ui/components/input";
@@ -1511,7 +1510,7 @@ export default function SessionsPage() {
               </div>
             )}
 
-            {showList && emptyCount > 0 && !isSearching && (
+            {/* {showList && emptyCount > 0 && !isSearching && (
               <Button
                 outlined
                 destructive
@@ -1526,7 +1525,7 @@ export default function SessionsPage() {
                   {t.sessions.deleteEmpty} ({emptyCount})
                 </span>
               </Button>
-            )}
+            )} */}
           </div>
 
           {showPagination && (

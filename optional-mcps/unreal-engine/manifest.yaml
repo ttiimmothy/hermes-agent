@@ -2,7 +2,7 @@
 # Presence in this directory = approval. Merged via PR review.
 manifest_version: 1
 
-name: unreal-engine
+# name: unreal-engine
 description: Drive the Unreal Engine 5.8 editor over its local MCP server.
 source: https://dev.epicgames.com/documentation/unreal-engine/unreal-mcp-in-unreal-editor
 

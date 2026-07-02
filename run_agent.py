@@ -5746,6 +5746,7 @@ class AIAgent:
 def main(
     query: str = None,
     model: str = "",
+    provider: str = "",
     api_key: str = None,
     base_url: str = "",
     max_turns: int = 10,
@@ -5882,11 +5883,14 @@ def main(
         print("   - Successful conversations → trajectory_samples.jsonl")
         print("   - Failed conversations → failed_trajectories.jsonl")
     
+    model = model if model else "claude-sonnet-4-5"
+    provider = provider if provider else "anthropic"
     # Initialize agent with provided parameters
     try:
         agent = AIAgent(
             base_url=base_url,
             model=model,
+            provider=provider,
             api_key=api_key,
             max_iterations=max_turns,
             enabled_toolsets=enabled_toolsets_list,
@@ -5901,10 +5905,9 @@ def main(
     
     # Use provided query or default to Python 3.13 example
     if query is None:
-        user_query = (
-            "Tell me about the latest developments in Python 3.13 and what new features "
-            "developers should know about. Please search for current information and try it out."
-        )
+        user_query = ("hello")
+            # "Tell me about the latest developments in Python 3.13 and what new features "
+            # "developers should know about. Please search for current information and try it out."
     else:
         user_query = query
     
@@ -5957,6 +5960,18 @@ def main(
     print("\n👋 Agent execution completed!")
 
 
-if __name__ == "__main__":
+def cli_entry_point():
+    """Console-script entry point — fires CLI args through fire so ``hermes-agent
+    --model=... --provider=... --query=...`` actually works.
+
+    The pip-generated wrapper (pyproject.toml → ``run_agent:main``) calls
+    ``main()`` with no arguments, meaning ``--model``/``--provider``/etc. are
+    silently ignored (the function defaults take over → ``claude-sonnet-4-5`` /
+    ``anthropic``).  This thin wrapper makes sure ``sys.argv`` is parsed.
+    """
     import fire
     fire.Fire(main)
+
+
+if __name__ == "__main__":
+    cli_entry_point()

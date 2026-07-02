@@ -113,7 +113,7 @@ def build_skills_parser(subparsers, *, cmd_skills: Callable) -> None:
     )
     skills_inspect.add_argument("identifier", help="Skill identifier")
 
-    skills_list = skills_subparsers.add_parser("list", help="List installed skills")
+    skills_list = skills_subparsers.add_parser("list", aliases=["ls"], help="List installed skills")
     skills_list.add_argument(
         "--source", default="all", choices=["all", "hub", "builtin", "local"]
     )

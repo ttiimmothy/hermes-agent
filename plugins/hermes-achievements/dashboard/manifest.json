@@ -2,9 +2,9 @@
   "name": "hermes-achievements",
   "label": "Achievements",
   "description": "Steam-style achievements for vibe coding and agentic Hermes workflows.",
-  "icon": "Star",
+  "icon": "Shield",
   "version": "0.4.0",
-  "tab": { "path": "/achievements", "position": "after:analytics" },
+  "tab": { "path": "/achievements", "position": "after:analytics", "hidden": true },
   "entry": "dist/index.js",
   "css": "dist/style.css",
   "api": "plugin_api.py"

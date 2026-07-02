@@ -1,0 +1,11 @@
+{
+  "name": "example",
+  "label": "Example dashboard",
+  "description": "Example dashboard plugin — used by test suite for auth coverage",
+  "icon": "Sparkles",
+  "version": "0.0.0",
+  "tab": { "path": "/example", "hidden": true },
+  "slots": [],
+  "entry": "dist/index.js",
+  "api": "plugin_api.py"
+}

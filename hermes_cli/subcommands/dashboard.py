@@ -99,6 +99,7 @@ def build_dashboard_parser(
     # =========================================================================
     dashboard_parser = subparsers.add_parser(
         "dashboard",
+        aliases=["dh"],
         help="Start the web UI dashboard",
         description="Launch the Hermes Agent web dashboard for managing config, API keys, and sessions",
     )

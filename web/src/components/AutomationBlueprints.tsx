@@ -124,7 +124,7 @@ function BlueprintCard({
             size="sm"
             onClick={() => setOpen((o) => !o)}
           >
-            {open ? "Cancel" : "Set up"}
+            <span className="font-mondwest normal-case text-xs text-nowrap">{open ? "Cancel" : "Set up"}</span>
           </Button>
         </div>
 
@@ -149,11 +149,8 @@ function BlueprintCard({
               </p>
             ) : null}
             <div className="flex items-center gap-2">
-              <Button
-                onClick={() => void submit()}
-                disabled={submitting}
-                prefix={submitting ? <Spinner /> : <Clock />}
-              >
+              <Button size="sm" outlined onClick={() => void submit()} disabled={submitting}>
+                {submitting ? <Spinner className="h-4 w-4 mr-1" /> : <Clock className="h-4 w-4 mr-1" />}
                 Schedule it
               </Button>
             </div>

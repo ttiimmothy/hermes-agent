@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
-import { Clock, Pause, Pencil, Play, Trash2, X, Zap } from "lucide-react";
-import { Badge } from "@nous-research/ui/ui/components/badge";
+// import { Clock, Pause, Pencil, Play, Trash2, X, Zap } from "lucide-react";
+import { X } from "lucide-react";
+// import { Badge } from "@nous-research/ui/ui/components/badge";
 import { Button } from "@nous-research/ui/ui/components/button";
 import { Select, SelectOption } from "@nous-research/ui/ui/components/select";
 import { Spinner } from "@nous-research/ui/ui/components/spinner";
-import { H2 } from "@nous-research/ui/ui/components/typography/h2";
+// import { H2 } from "@nous-research/ui/ui/components/typography/h2";
 import { api } from "@/lib/api";
 import type {
   CronJob,
@@ -17,7 +18,7 @@ import type {
 import {
   buildCronJobPayload,
   cronJobHasExecutionContent,
-  cronJobFormFromJob,
+  // cronJobFormFromJob,
   type CronJobFormState,
 } from "@/lib/cron-job";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
@@ -27,31 +28,31 @@ import {
 } from "@/components/ScheduleBuilder";
 import {
   buildScheduleString,
-  describeSchedule,
-  englishOrdinal,
-  parseScheduleString,
+  // describeSchedule,
+  // englishOrdinal,
+  // parseScheduleString,
   type ScheduleBuilderState,
-  type ScheduleDescribeStrings,
+  // type ScheduleDescribeStrings,
 } from "@/lib/schedule";
 import { useToast } from "@nous-research/ui/hooks/use-toast";
 import { useConfirmDelete } from "@nous-research/ui/hooks/use-confirm-delete";
 import { useModalBehavior } from "@/hooks/useModalBehavior";
 import { Toast } from "@nous-research/ui/ui/components/toast";
-import { Card, CardContent } from "@nous-research/ui/ui/components/card";
+// import { Card, CardContent } from "@nous-research/ui/ui/components/card";
 import { Input } from "@nous-research/ui/ui/components/input";
 import { Label } from "@nous-research/ui/ui/components/label";
 import { useI18n } from "@/i18n";
 import { usePageHeader } from "@/contexts/usePageHeader";
 import { PluginSlot } from "@/plugins";
-import { Segmented } from "@nous-research/ui/ui/components/segmented";
+// import { Segmented } from "@nous-research/ui/ui/components/segmented";
 import { AutomationBlueprints } from "@/components/AutomationBlueprints";
 import { cn, themedBody } from "@/lib/utils";
 
-function formatTime(iso?: string | null): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  return d.toLocaleString();
-}
+// function formatTime(iso?: string | null): string {
+//   if (!iso) return "—";
+//   const d = new Date(iso);
+//   return d.toLocaleString();
+// }
 
 function asText(value: unknown): string {
   return typeof value === "string" ? value : "";
@@ -147,10 +148,10 @@ function emptyCronJobForm(): CronJobEditorState {
   };
 }
 
-function editorFormFromJob(job: CronJob): CronJobEditorState {
-  const form = cronJobFormFromJob(job);
-  return { ...form, scheduleState: parseScheduleString(form.schedule) };
-}
+// function editorFormFromJob(job: CronJob): CronJobEditorState {
+//   const form = cronJobFormFromJob(job);
+//   return { ...form, scheduleState: parseScheduleString(form.schedule) };
+// }
 
 function buildCronJobPayloadFromEditor(form: CronJobEditorState) {
   const { scheduleState, ...payloadForm } = form;
@@ -441,46 +442,46 @@ function getJobTitle(job: CronJob): string {
   return job.id || "Cron job";
 }
 
-function getJobScheduleDisplay(
-  job: CronJob,
-  strings: ScheduleDescribeStrings,
-): string {
-  // Prefer a structured render so cron expressions like
-  // ``30 14 * * 1,3,5`` surface as "Weekly on Mon, Wed, Fri at 14:30"
-  // in the list instead of the raw five-field gibberish. Falls back
-  // through the existing chain (``schedule_display`` from the backend,
-  // then the structured ``display`` field, then the raw ``expr``) so
-  // legacy job rows still render *something* meaningful.
-  return describeSchedule(
-    job.schedule,
-    asText(job.schedule_display) || asText(job.schedule?.display),
-    strings,
-  );
-}
+// function getJobScheduleDisplay(
+//   job: CronJob,
+//   strings: ScheduleDescribeStrings,
+// ): string {
+//   // Prefer a structured render so cron expressions like
+//   // ``30 14 * * 1,3,5`` surface as "Weekly on Mon, Wed, Fri at 14:30"
+//   // in the list instead of the raw five-field gibberish. Falls back
+//   // through the existing chain (``schedule_display`` from the backend,
+//   // then the structured ``display`` field, then the raw ``expr``) so
+//   // legacy job rows still render *something* meaningful.
+//   return describeSchedule(
+//     job.schedule,
+//     asText(job.schedule_display) || asText(job.schedule?.display),
+//     strings,
+//   );
+// }
 
-function getJobState(job: CronJob): string {
-  return asText(job.state) || (job.enabled === false ? "disabled" : "scheduled");
-}
+// function getJobState(job: CronJob): string {
+//   return asText(job.state) || (job.enabled === false ? "disabled" : "scheduled");
+// }
 
-function getRepeatDisplay(job: CronJob): string {
-  const repeat = job.repeat;
-  if (!repeat || repeat.times == null) return "forever";
-  const completed = repeat.completed ?? 0;
-  return completed > 0 ? `${completed}/${repeat.times}` : `${repeat.times} times`;
-}
+// function getRepeatDisplay(job: CronJob): string {
+//   const repeat = job.repeat;
+//   if (!repeat || repeat.times == null) return "forever";
+//   const completed = repeat.completed ?? 0;
+//   return completed > 0 ? `${completed}/${repeat.times}` : `${repeat.times} times`;
+// }
 
-function getJobMode(job: CronJob): string {
-  if (job.no_agent) return "no_agent";
-  if (job.script) return "script+agent";
-  return "agent";
-}
+// function getJobMode(job: CronJob): string {
+//   if (job.no_agent) return "no_agent";
+//   if (job.script) return "script+agent";
+//   return "agent";
+// }
 
-function getModelDisplay(job: CronJob): string {
-  const provider = asText(job.provider);
-  const model = asText(job.model);
-  if (provider && model) return `${provider}/${model}`;
-  return model || provider;
-}
+// function getModelDisplay(job: CronJob): string {
+//   const provider = asText(job.provider);
+//   const model = asText(job.model);
+//   if (provider && model) return `${provider}/${model}`;
+//   return model || provider;
+// }
 
 function getJobProfile(job: CronJob): string {
   return asText(job.profile) || asText(job.profile_name) || "default";
@@ -500,22 +501,23 @@ function profileLabel(profile: string): string {
   return profile === "default" ? "default" : profile;
 }
 
-const STATUS_TONE: Record<string, "success" | "warning" | "destructive"> = {
-  enabled: "success",
-  scheduled: "success",
-  paused: "warning",
-  error: "destructive",
-  completed: "destructive",
-};
+// const STATUS_TONE: Record<string, "success" | "warning" | "destructive"> = {
+//   enabled: "success",
+//   scheduled: "success",
+//   paused: "warning",
+//   error: "destructive",
+//   completed: "destructive",
+// };
 
 export default function CronPage() {
   const [jobs, setJobs] = useState<CronJob[]>([]);
   const [profiles, setProfiles] = useState<ProfileInfo[]>([]);
   const [selectedProfile, setSelectedProfile] = useState("all");
-  const [view, setView] = useState<"jobs" | "blueprints">("jobs");
+  // const [view, setView] = useState<"jobs" | "blueprints">("blueprints");
   const [loading, setLoading] = useState(true);
   const { toast, showToast } = useToast();
-  const { t, locale } = useI18n();
+  // const { t, locale } = useI18n();
+  const { t } = useI18n();
   const { setEnd } = usePageHeader();
 
   // Translation surface for the human-readable schedule describer.
@@ -527,11 +529,11 @@ export default function CronPage() {
   // Built inline (not memoized) — the cron page renders a small job
   // list, this is single-digit microseconds, and a useMemo here would
   // just add boilerplate.
-  const scheduleDescribeStrings: ScheduleDescribeStrings = {
-    ...t.cron.scheduleDescribe,
-    weekdaysShort: t.cron.scheduleModes.weekdaysShort,
-    ordinal: locale === "en" ? englishOrdinal : (n: number) => String(n),
-  };
+  // const scheduleDescribeStrings: ScheduleDescribeStrings = {
+  //   ...t.cron.scheduleDescribe,
+  //   weekdaysShort: t.cron.scheduleModes.weekdaysShort,
+  //   ordinal: locale === "en" ? englishOrdinal : (n: number) => String(n),
+  // };
 
   // New job modal state
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -571,10 +573,10 @@ export default function CronPage() {
 
   const resourceProfile = editJob ? getJobProfile(editJob) : createProfile;
 
-  const openEditModal = useCallback((job: CronJob) => {
-    setEditJob(job);
-    setEditForm(editorFormFromJob(job));
-  }, []);
+  // const openEditModal = useCallback((job: CronJob) => {
+  //   setEditJob(job);
+  //   setEditForm(editorFormFromJob(job));
+  // }, []);
 
   const loadJobs = useCallback(() => {
     api
@@ -685,41 +687,41 @@ export default function CronPage() {
     }
   };
 
-  const handlePauseResume = async (job: CronJob) => {
-    try {
-      const isPaused = getJobState(job) === "paused";
-      const profile = getJobProfile(job);
-      if (isPaused) {
-        await api.resumeCronJob(job.id, profile);
-        showToast(
-          `${t.cron.resume}: "${truncateText(getJobTitle(job), 30)}"`,
-          "success",
-        );
-      } else {
-        await api.pauseCronJob(job.id, profile);
-        showToast(
-          `${t.cron.pause}: "${truncateText(getJobTitle(job), 30)}"`,
-          "success",
-        );
-      }
-      loadJobs();
-    } catch (e) {
-      showToast(`${t.status.error}: ${e}`, "error");
-    }
-  };
+  // const handlePauseResume = async (job: CronJob) => {
+  //   try {
+  //     const isPaused = getJobState(job) === "paused";
+  //     const profile = getJobProfile(job);
+  //     if (isPaused) {
+  //       await api.resumeCronJob(job.id, profile);
+  //       showToast(
+  //         `${t.cron.resume}: "${truncateText(getJobTitle(job), 30)}"`,
+  //         "success",
+  //       );
+  //     } else {
+  //       await api.pauseCronJob(job.id, profile);
+  //       showToast(
+  //         `${t.cron.pause}: "${truncateText(getJobTitle(job), 30)}"`,
+  //         "success",
+  //       );
+  //     }
+  //     loadJobs();
+  //   } catch (e) {
+  //     showToast(`${t.status.error}: ${e}`, "error");
+  //   }
+  // };
 
-  const handleTrigger = async (job: CronJob) => {
-    try {
-      await api.triggerCronJob(job.id, getJobProfile(job));
-      showToast(
-        `${t.cron.triggerNow}: "${truncateText(getJobTitle(job), 30)}"`,
-        "success",
-      );
-      loadJobs();
-    } catch (e) {
-      showToast(`${t.status.error}: ${e}`, "error");
-    }
-  };
+  // const handleTrigger = async (job: CronJob) => {
+  //   try {
+  //     await api.triggerCronJob(job.id, getJobProfile(job));
+  //     showToast(
+  //       `${t.cron.triggerNow}: "${truncateText(getJobTitle(job), 30)}"`,
+  //       "success",
+  //     );
+  //     loadJobs();
+  //   } catch (e) {
+  //     showToast(`${t.status.error}: ${e}`, "error");
+  //   }
+  // };
 
   const jobDelete = useConfirmDelete({
     onDelete: useCallback(
@@ -778,22 +780,39 @@ export default function CronPage() {
       <PluginSlot name="cron:top" />
       <Toast toast={toast} />
 
-      <Segmented
+      {/* <Segmented
         value={view}
         onChange={(v) => setView(v as "jobs" | "blueprints")}
         options={[
           { value: "jobs", label: "Jobs" },
           { value: "blueprints", label: "Blueprints" },
         ]}
+      /> */}
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-end">
+        <div className="grid gap-1 min-w-[220px]">
+          <Label htmlFor="cron-profile-filter">Profile</Label>
+          <Select
+            id="cron-profile-filter"
+            value={selectedProfile}
+            onValueChange={(v) => setSelectedProfile(v)}
+          >
+            <SelectOption value="all">All profiles</SelectOption>
+            {profiles.map((profile) => (
+              <SelectOption key={profile.name} value={profile.name}>
+                {profileLabel(profile.name)}
+              </SelectOption>
+            ))}
+          </Select>
+        </div>
+      </div>
+
+      {/* {view === "blueprints" && ( */}
+      <AutomationBlueprints
+        profile={selectedProfile === "all" ? "default" : selectedProfile}
+        onCreated={loadJobs}
       />
-
-      {view === "blueprints" && (
-        <AutomationBlueprints
-          profile={selectedProfile === "all" ? "default" : selectedProfile}
-          onCreated={loadJobs}
-        />
-      )}
-
+      {/* )} */}
 
       <DeleteConfirmDialog
         open={jobDelete.isOpen}
@@ -814,7 +833,7 @@ export default function CronPage() {
       {createModalOpen && (
         <div
           ref={createModalRef}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 backdrop-blur-sm p-4"
           onClick={(e) => e.target === e.currentTarget && setCreateModalOpen(false)}
           role="dialog"
           aria-modal="true"
@@ -889,7 +908,7 @@ export default function CronPage() {
       {editJob && (
         <div
           ref={editModalRef}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 backdrop-blur-sm p-4"
           onClick={(e) => e.target === e.currentTarget && setEditJob(null)}
           role="dialog"
           aria-modal="true"
@@ -948,7 +967,8 @@ export default function CronPage() {
         </div>
       )}
 
-      {view === "jobs" && (
+      
+      {/* {view === "jobs" && (
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <H2
@@ -1115,7 +1135,7 @@ export default function CronPage() {
           );
         })}
       </div>
-      )}
+      )} */}
 
       <PluginSlot name="cron:bottom" />
     </div>

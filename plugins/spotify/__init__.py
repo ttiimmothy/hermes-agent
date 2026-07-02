@@ -61,6 +61,5 @@ def register(ctx) -> None:
             toolset="spotify",
             schema=schema,
             handler=handler,
-            check_fn=_check_spotify_available,
             emoji=emoji,
         )

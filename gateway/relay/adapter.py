@@ -267,7 +267,7 @@ class RelayAdapter(BasePlatformAdapter):
             if scope:
                 self._scope_by_chat[str(chat)] = str(scope)
                 return
-            # DM: no scope. Remember the authentic author id for outbound
+            # DM: no guild_id. Remember the authentic author id for outbound
             # author-binding resolution (the user we're replying to in this DM).
             user_id = getattr(src, "user_id", None)
             if user_id:

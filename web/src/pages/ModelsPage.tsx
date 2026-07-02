@@ -3,7 +3,6 @@ import {
   Brain,
   ChevronDown,
   Cpu,
-  DollarSign,
   Eye,
   RefreshCw,
   Settings2,
@@ -26,7 +25,7 @@ import { formatTokenCount } from "@/lib/format";
 import { Button } from "@nous-research/ui/ui/components/button";
 import { Spinner } from "@nous-research/ui/ui/components/spinner";
 import { Stats } from "@nous-research/ui/ui/components/stats";
-import { Card, CardContent, CardHeader, CardTitle } from "@nous-research/ui/ui/components/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@nous-research/ui/ui/components/badge";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useModalBehavior } from "@/hooks/useModalBehavior";
@@ -40,6 +39,8 @@ const PERIODS = [
   { label: "7d", days: 7 },
   { label: "30d", days: 30 },
   { label: "90d", days: 90 },
+  { label: "999d", days: 999 },
+  { label: "9999d", days: 9999 },
 ] as const;
 
 // Must match _AUX_TASK_SLOTS in hermes_cli/web_server.py.
@@ -506,7 +507,6 @@ function ModelCard({
           <div className="flex items-center gap-3">
             {showTokens && entry.estimated_cost > 0 && (
               <span className="flex items-center gap-0.5">
-                <DollarSign className="h-2.5 w-2.5" />
                 {formatCost(entry.estimated_cost)}
               </span>
             )}
@@ -575,7 +575,7 @@ function AuxiliaryTasksModal({
   return (
     <div
       ref={modalRef}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 backdrop-blur-sm p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
       role="dialog"
       aria-modal="true"
@@ -710,6 +710,7 @@ function MoaModelsModal({
   const [picker, setPicker] = useState<MoaPickerTarget | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const modalRef = useModalBehavior({ open: true, onClose });
 
   const presetNames = Object.keys(draft.presets || {});
   const preset = draft.presets[selected] || draft.presets[presetNames[0]];
@@ -779,8 +780,17 @@ function MoaModelsModal({
   if (!preset) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4">
-      <Card className="max-h-[85vh] w-full max-w-2xl overflow-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-sm p-4" ref={modalRef} onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <Card className="max-h-[85vh] w-full max-w-2xl overflow-auto relative">
+        <Button
+          ghost
+          size="icon"
+          onClick={onClose}
+          className="absolute right-2 top-2 text-muted-foreground hover:text-foreground"
+          aria-label="Close"
+        >
+          <X />
+        </Button>
         <CardHeader>
           <CardTitle className="text-sm">Configure Mixture of Agents presets</CardTitle>
         </CardHeader>
@@ -1063,7 +1073,7 @@ function ModelSettingsPanel({
 /* ──────────────────────────────────────────────────────────────────── */
 
 export default function ModelsPage() {
-  const [days, setDays] = useState(30);
+  const [days, setDays] = useState(9999);
   const [data, setData] = useState<ModelsAnalyticsResponse | null>(null);
   const [aux, setAux] = useState<AuxiliaryModelsResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -1099,6 +1109,7 @@ export default function ModelsPage() {
       .then(([models, auxData]) => {
         setData(models);
         setAux(auxData);
+        console.log(models);
       })
       .catch((err) => setError(String(err)))
       .finally(() => setLoading(false));
@@ -1272,7 +1283,7 @@ export default function ModelsPage() {
         <>
           {data.models.length > 0 ? (
             <div className="grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {data.models.map((m, i) => (
+              {data.models.filter((m) => m.provider != "" && m.api_calls > 0).map((m, i) => (
                 <ModelCard
                   key={`${m.model}:${m.provider}`}
                   entry={m}

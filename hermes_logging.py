@@ -328,8 +328,8 @@ def setup_logging(
         root,
         log_dir / "errors.log",
         level=logging.WARNING,
-        max_bytes=2 * 1024 * 1024,
-        backup_count=2,
+        max_bytes=30 * 1024 * 1024,
+        backup_count=20,
         formatter=RedactingFormatter(_LOG_FORMAT),
     )
 
@@ -339,8 +339,8 @@ def setup_logging(
             root,
             log_dir / "gateway.log",
             level=logging.INFO,
-            max_bytes=5 * 1024 * 1024,
-            backup_count=3,
+            max_bytes=30 * 1024 * 1024,
+            backup_count=20,
             formatter=RedactingFormatter(_LOG_FORMAT),
             log_filter=_ComponentFilter(COMPONENT_PREFIXES["gateway"]),
         )
@@ -351,8 +351,8 @@ def setup_logging(
             root,
             log_dir / "gui.log",
             level=logging.INFO,
-            max_bytes=10 * 1024 * 1024,
-            backup_count=5,
+            max_bytes=30 * 1024 * 1024,
+            backup_count=20,
             formatter=RedactingFormatter(_LOG_FORMAT),
             log_filter=_ComponentFilter(COMPONENT_PREFIXES["gui"]),
         )

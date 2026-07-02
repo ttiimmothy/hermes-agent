@@ -29,6 +29,8 @@ const PERIODS = [
   { label: "7d", days: 7 },
   { label: "30d", days: 30 },
   { label: "90d", days: 90 },
+  { label: "999d", days: 999 },
+  { label: "9999d", days: 9999 },
 ] as const;
 
 const CHART_HEIGHT_PX = 160;
@@ -404,7 +406,7 @@ function SkillTable({ skills }: { skills: AnalyticsSkillEntry[] }) {
 }
 
 export default function AnalyticsPage() {
-  const [days, setDays] = useState(30);
+  const [days, setDays] = useState(9999);
   const [data, setData] = useState<AnalyticsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

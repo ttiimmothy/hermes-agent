@@ -485,8 +485,7 @@ def sync_skills(quiet: bool = False) -> dict:
     Sync bundled skills into ~/.hermes/skills/ using the manifest.
 
     Returns:
-        dict with keys: copied (list), updated (list), skipped (int),
-                        user_modified (list), cleaned (list), total_bundled (int)
+        dict with keys: copied (list), updated (list), skipped (int), user_modified (list), cleaned (list), total_bundled (int)
     """
     # Opt-out: a profile (named or the default ~/.hermes) that wrote the
     # .no-bundled-skills marker gets zero bundled-skill seeding. Returning the

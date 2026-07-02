@@ -828,13 +828,13 @@ def _run_review_in_thread(
         if actions:
             summary = " · ".join(dict.fromkeys(actions))
             agent._safe_print(
-                f"  💾 Self-improvement review: {summary}"
+                f"  💾 Self-improvement review: {actions}"
             )
             _bg_cb = agent.background_review_callback
             if _bg_cb:
                 try:
                     _bg_cb(
-                        f"💾 Self-improvement review: {summary}"
+                        f"💾 Self-improvement review: {actions}"
                     )
                 except Exception:
                     pass
